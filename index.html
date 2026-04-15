@@ -6,8 +6,6 @@
 <title>sumanth.D© — 世界を創る者</title>
 <meta name="description" content="Sumanth Amidyala — 3D environment designer, hard-surface modeller, builder of worlds.">
 
-<!-- Joy Boy was here. The dawn is a question. The sword is the answer. -->
-
 <link rel="preload" as="image" href="assets/bg-hero.png">
 <link rel="preload" as="image" href="assets/bg-clouds.png">
 <link rel="preload" as="image" href="assets/bg-hilltop.png">
@@ -20,7 +18,6 @@
 </head>
 <body>
 
-<!-- ═══════════ LOADER ═══════════ -->
 <div class="loader" id="loader">
   <div class="loader-inner">
     <div class="loader-mark">
@@ -37,10 +34,8 @@
   </div>
 </div>
 
-<!-- ═══════════ STAGE ═══════════ -->
 <div class="stage" id="stage">
 
-  <!-- BG image layers -->
   <div class="bg-scene" id="bg-scene">
     <img class="bg-img bg-1" id="bg-hero"    src="assets/bg-hero.png"    alt="" decoding="async">
     <img class="bg-img bg-2" id="bg-clouds"  src="assets/bg-clouds.png"  alt="" decoding="async">
@@ -50,27 +45,20 @@
     <img class="bg-img bg-6" id="bg-dawn"    src="assets/bg-dawn.png"    alt="" decoding="async">
   </div>
 
-  <!-- Parallax star layers (3 depths) -->
   <canvas class="layer layer-stars" id="stars"></canvas>
 
-  <!-- Three.js katana -->
   <canvas class="layer layer-three" id="three"></canvas>
 
-  <!-- Atmosphere — bokeh, petals, embers, lightning, dandelions -->
   <canvas class="layer layer-atmos" id="atmos"></canvas>
 
-  <!-- ═══════════ GLASS CRACK SYSTEM ═══════════ -->
   <div class="glass-crack" id="glass-crack" aria-hidden="true">
-    <!-- frosted overlay -->
     <div class="glass-frost" id="glass-frost"></div>
 
-    <!-- engraved text behind the glass -->
     <div class="glass-engrave">
       <div class="ge-jp">刀は問い、答えは持ち手にある</div>
       <div class="ge-en">The sword is the question — the answer lies in the wielder.</div>
     </div>
 
-    <!-- SVG crack lines, drawn via stroke-dashoffset -->
     <svg class="crack-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" id="crack-svg">
       <defs>
         <filter id="crack-glow">
@@ -81,16 +69,13 @@
     </svg>
   </div>
 
-  <!-- progress thread -->
   <div class="progress-line" id="progress" aria-hidden="true"></div>
 
-  <!-- overlays -->
   <div class="overlay-chromatic" id="overlay-chromatic" aria-hidden="true"></div>
   <div class="overlay-grain" id="overlay-grain" aria-hidden="true"></div>
   <div class="overlay-scanlines" aria-hidden="true"></div>
   <div class="overlay-vignette" aria-hidden="true"></div>
 
-  <!-- ═══════════ CHROME ═══════════ -->
   <header class="chrome">
     <div class="brand" data-cursor="hover">
       <div class="brand-icon">
@@ -118,6 +103,7 @@
     </nav>
 
     <div class="scroll-pct" id="scroll-pct">0%</div>
+
   </header>
 
   <div class="stats">
@@ -126,18 +112,15 @@
     <span>MODE : <span id="stat-mode">CODEX</span></span>
   </div>
 
-  <!-- BEAT 1 — VOID monogram -->
   <div class="hero-monogram" id="hero-monogram">
     <span>su</span><span class="hm-m" id="hm-m">m</span><span class="hm-d">.D</span>
     <span class="hm-copy">©</span>
   </div>
 
-  <!-- captions -->
   <div class="caption cap-chapter" id="cap-chapter">CHAPTER 一 · INHERITANCE</div>
   <div class="caption cap-bottom"  id="cap-bottom">— FROM HYDERABAD, A CRAFTSMAN —</div>
   <div class="caption cap-folio"   id="cap-folio">VOL. 4.6 / FOLIO 001</div>
 
-  <!-- beat titles, with frosted glass backing -->
   <div class="beat-title bt-sacred" id="bt-sacred"
        data-target="A blade is just steel,|until &lt;em&gt;someone&lt;/em&gt; chooses to lift it."></div>
 
@@ -150,7 +133,6 @@
   <div class="beat-title bt-self" id="bt-self"
        data-target="&#8220;To master the craft is to master &lt;em&gt;the self&lt;/em&gt;.&#8221;"></div>
 
-  <!-- Skill Hub (cappen ledger) -->
   <section class="skillhub" id="skillhub" aria-hidden="true">
     <div class="skillhub-left">
       <div class="sh-kicker">WORKS &middot; 作品</div>
@@ -161,14 +143,12 @@
     <div class="skillhub-right" id="skillhub-right"></div>
   </section>
 
-  <!-- Dawn title -->
   <div class="dawn-title" id="dawn-title">
     <div class="dt-kicker">報い · The Dawn</div>
     <div class="dt-main">is a <em>question</em>.</div>
     <div class="dt-main">The sword is the <span class="red">answer</span>.</div>
   </div>
 
-  <!-- Luffy — sun-aligned via CSS variables -->
   <button class="jumper" id="jumper" aria-label="Awaken">
     <img src="assets/jumper-silhouette.png" alt="" decoding="async">
     <span class="jumper-hint">Click to awaken · 覚醒</span>
@@ -176,7 +156,6 @@
 
   <div class="scroll-hint" id="scroll-hint">Scroll · 続く</div>
 
-  <!-- Mugen narrator -->
   <div class="mugen" id="mugen">
     <div class="mugen-bubble" id="mugen-bubble">
       <div class="mb-who" id="mb-who">SENSEI MUGEN</div>
@@ -188,14 +167,12 @@
     </div>
   </div>
 
-  <!-- meta widget -->
   <aside class="meta-widget" id="meta-widget">
     <div class="mw-row"><span class="mw-k">HOUR</span><span class="mw-v" id="mw-hour">Nightfall</span></div>
     <div class="mw-row"><span class="mw-k">COORD</span><span class="mw-v">17°N · 78°E</span></div>
     <div class="mw-row"><span class="mw-k">WIND</span><span class="mw-v" id="mw-wind">NE · LOW</span></div>
   </aside>
 
-  <!-- ═══════════ INK MODE — HIDDEN VAULT ═══════════ -->
   <div class="ink-system" id="ink-system" aria-hidden="true">
     <canvas class="ink-atmos" id="ink-atmos"></canvas>
 
@@ -206,13 +183,13 @@
     </div>
 
     <div class="vault-grid" id="vault-grid">
-      <!-- populated by JS — 4 hero spots -->
-    </div>
+      </div>
 
     <div class="ink-footer">
       <span>↓ scroll the awakening · 覚醒を巡る</span>
       <span>click the wanderer to return</span>
     </div>
+
   </div>
 
 </div>
@@ -221,8 +198,12 @@
 <div class="cursor" id="cursor"><div class="cursor-dot"></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+
 <script src="scene.js"></script>
+
 </body>
 </html>
