@@ -379,41 +379,46 @@ function updateKatana(){
   var p = S.progress;
   var kx, ky, kz, rX, rY, rZ;
 
-  // FIX: The model is exported pointing at the camera (Z-axis).
-  // We rotate Y by -90 degrees to lay it flat horizontally across the screen.
+  // 1. LOCKING THE AXIS: 
+  // -Math.PI / 2 keeps it perfectly flat and horizontal across the screen.
   var baseY = -Math.PI / 2;
 
-  // Legendary fixed horizontal scroll, tracking left to right
+  // 2. FIXING THE MASSIVE SIZE:
+  // We push the base Z-depth back to 5.2 (instead of 2.4) so the whole sword fits in the frame safely.
+  var baseZ = 5.2;
+
+  // 3. ELEGANT PANNING:
+  // No wild tumbling. Just smooth left/right/up/down tracking.
   if(p < 0.12){
     var t = smoothstep(0, 0.12, p);
-    kx = lerp(-2.4, -0.6, t);  ky = 0;  kz = 2.4;
+    kx = lerp(-4.0, -1.0, t);  ky = 0;  kz = baseZ;
     rX = 0;  rY = baseY;  rZ = 0;
   } else if(p < 0.28){
     var t = smoothstep(0.12, 0.28, p);
-    kx = lerp(-0.6, 1.8, t);  ky = 0;  kz = 2.4;
-    rX = lerp(0, 0.15, t);  rY = baseY + lerp(0, 0.2, t);  rZ = 0;
+    kx = lerp(-1.0, 1.5, t);  ky = 0;  kz = baseZ;
+    rX = 0;  rY = baseY;  rZ = 0;
   } else if(p < 0.45){
+    // Ascent Beat (Your Screenshot 1)
     var t = smoothstep(0.28, 0.45, p);
-    kx = lerp(1.8, 0, t);  ky = lerp(0, 1.2, t);  kz = lerp(2.4, 3.2, t);
-    rX = lerp(0.15, -0.2, t);  rY = baseY + lerp(0.2, -0.1, t);  rZ = lerp(0, 0.2, t);
+    kx = lerp(1.5, 0.5, t);  ky = lerp(0, 0.8, t);  kz = baseZ - 0.4; // Slight zoom in
+    rX = lerp(0, -0.06, t);  rY = baseY;  rZ = lerp(0, 0.04, t); // Very tiny, subtle tilt upward
   } else if(p < 0.62){
     var t = smoothstep(0.45, 0.62, p);
-    kx = lerp(0, 1.4, t);  ky = lerp(1.2, -1.0, t);  kz = lerp(3.2, 3.0, t);
-    rX = lerp(-0.2, -0.1, t);  rY = baseY + lerp(-0.1, 0.3, t);  rZ = lerp(0.2, 0.4, t);
+    kx = lerp(0.5, -1.0, t);  ky = lerp(0.8, -0.4, t);  kz = baseZ;
+    rX = lerp(-0.06, 0, t);  rY = baseY;  rZ = lerp(0.04, -0.02, t);
   } else if(p < 0.80){
     var t = smoothstep(0.62, 0.80, p);
-    kx = lerp(1.4, -1.6, t);  ky = lerp(-1.0, 0.6, t);  kz = lerp(3.0, 2.6, t);
-    rX = lerp(-0.1, 0.1, t);  rY = baseY + lerp(0.3, 0, t);  rZ = lerp(0.4, 0.1, t);
+    kx = lerp(-1.0, -2.5, t);  ky = lerp(-0.4, 0, t);  kz = baseZ + 0.5; // Push back slightly for text
+    rX = 0;  rY = baseY;  rZ = lerp(-0.02, 0, t);
   } else {
+    // Dawn Beat (Your Screenshot 2)
     var t = smoothstep(0.80, 1.0, p);
-    kx = lerp(-1.6, -2.6, t);  ky = lerp(0.6, -0.8, t);  kz = lerp(2.6, 2.8, t);
-    rX = lerp(0.1, -0.05, t);  rY = baseY + lerp(0, 0.1, t);  rZ = lerp(0.1, 0, t);
+    kx = lerp(-2.5, 0, t);  ky = lerp(0, -0.3, t);  kz = baseZ; // -0.3 keeps it safely visible above the bottom edge
+    rX = 0;  rY = baseY;  rZ = 0;
   }
 
-  // Gentle cinematic breathing hover, totally decoupled from the mouse
+  // Gentle cinematic breathing hover (totally decoupled from mouse cursor)
   ky += Math.sin(S.t*0.6)*0.015;
-
-  if(kz < 1.0) kz = 1.0;
 
   KAT.position.set(kx, ky, kz);
   KAT.rotation.set(rX, rY, rZ);
@@ -844,12 +849,14 @@ function applyBeatTitle(id, on){
 
 /* SKILL HUB POPULATE */
 function buildSkillHub(){
-  $('shl-rail').innerHTML = WORKS.map(function(w){
-    return '<div class="shl-row">'+
-      '<div class="shl-num">'+w.no+'</div>'+
-      '<div class="shl-title">'+w.title+'</div>'+
-      '<div class="shl-role">'+w.role+'</div>'+
-      '<div class="shl-year">'+w.year+'</div>'+
+  var container = $('sh-ledger');
+  if(!container) return;
+  container.innerHTML = WORKS.map(function(w){
+    return '<div class="sh-row">'+
+      '<div class="sh-num">'+w.no+'</div>'+
+      '<div class="sh-title-row">'+w.title+'</div>'+
+      '<div class="sh-role">'+w.role+'</div>'+
+      '<div class="sh-year">'+w.year+'</div>'+
     '</div>';
   }).join('');
 }
