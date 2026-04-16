@@ -349,42 +349,45 @@ function updateKatana(){
   var p = S.progress;
   var kx, ky, kz, rX, rY, rZ;
 
-  var baseY = -Math.PI / 2; // Fixes the pointing-at-camera issue
-  var baseZ = 5.2;          // Pushes it back so it fits in screen
+  var baseY = -Math.PI / 2; // Keeps the blade perfectly flat to the camera
+
+  // THE FIX: Push the sword back to Z = 0 so it has distance from the camera (which is at Z = 5).
+  // This scales it down naturally and keeps it beautifully inside the frame!
+  var baseZ = 0; 
 
   if(p < 0.12){
     var t = smoothstep(0, 0.12, p);
-    kx = lerp(-4.0, -1.0, t);  ky = 0;  kz = baseZ;
+    kx = lerp(-3.5, -0.6, t);  ky = 0;  kz = baseZ;
     rX = 0;  rY = baseY;  rZ = 0;
   } else if(p < 0.28){
     var t = smoothstep(0.12, 0.28, p);
-    kx = lerp(-1.0, 1.5, t);  ky = 0;  kz = baseZ;
-    rX = 0;  rY = baseY;  rZ = 0;
+    kx = lerp(-0.6, 1.8, t);  ky = 0;  kz = baseZ;
+    rX = lerp(0, 0.15, t);  rY = baseY + lerp(0, 0.1, t);  rZ = 0;
   } else if(p < 0.45){
     var t = smoothstep(0.28, 0.45, p);
-    kx = lerp(1.5, 0.5, t);  ky = lerp(0, 0.8, t);  kz = baseZ - 0.4;
-    rX = lerp(0, -0.06, t);  rY = baseY;  rZ = lerp(0, 0.04, t);
+    kx = lerp(1.8, 0.5, t);  ky = lerp(0, 0.5, t);  kz = baseZ + 1.0; // Slight cinematic zoom in
+    rX = lerp(0.15, -0.1, t);  rY = baseY + lerp(0.1, -0.05, t);  rZ = lerp(0, 0.05, t);
   } else if(p < 0.62){
     var t = smoothstep(0.45, 0.62, p);
-    kx = lerp(0.5, -1.0, t);  ky = lerp(0.8, -0.4, t);  kz = baseZ;
-    rX = lerp(-0.06, 0, t);  rY = baseY;  rZ = lerp(0.04, -0.02, t);
+    kx = lerp(0.5, -1.0, t);  ky = lerp(0.5, -0.3, t);  kz = baseZ;
+    rX = lerp(-0.1, 0, t);  rY = baseY + lerp(-0.05, 0.1, t);  rZ = lerp(0.05, -0.02, t);
   } else if(p < 0.80){
     var t = smoothstep(0.62, 0.80, p);
-    kx = lerp(-1.0, -2.5, t);  ky = lerp(-0.4, 0, t);  kz = baseZ + 0.5;
+    kx = lerp(-1.0, -2.0, t);  ky = lerp(-0.3, 0.2, t);  kz = baseZ - 1.0; // Push further back to clear space for text
     rX = 0;  rY = baseY;  rZ = lerp(-0.02, 0, t);
   } else {
     var t = smoothstep(0.80, 1.0, p);
-    kx = lerp(-2.5, 0, t);  ky = lerp(0, -0.3, t);  kz = baseZ;
+    kx = lerp(-2.0, -3.0, t);  ky = lerp(0.2, -0.4, t);  kz = baseZ;
     rX = 0;  rY = baseY;  rZ = 0;
   }
 
-  ky += Math.sin(S.t*0.6)*0.015; // Decoupled breathing hover
-
-  if(kz < 1.0) kz = 1.0;
+  // Gentle breathing hover, decoupled from the mouse
+  ky += Math.sin(S.t*0.6)*0.015;
 
   KAT.position.set(kx, ky, kz);
   KAT.rotation.set(rX, rY, rZ);
 
+  // Lighting transitions based on scroll depth
   if(p < 0.38){
     keyL.color.setHex(0xffe0b8); keyL.intensity = 1.1;
     rimL.color.setHex(0xff6030); rimL.intensity = 0.5;
@@ -409,10 +412,14 @@ function updateKatana(){
 
   edgeAccent.intensity = smoothstep(0.25, 0.60, p)*0.9 + smoothstep(0.92, 1.0, p)*0.8;
   edgeAccent.position.set(KAT.position.x, KAT.position.y, KAT.position.z + 0.4);
+
   if(S.flashIntensity > 0){
     flashL.intensity = S.flashIntensity * 12;
     S.flashIntensity *= 0.85;
-  } else { flashL.intensity = 0; }
+  } else {
+    flashL.intensity = 0;
+  }
+
   if(KAT.userData.meshes){
     var eW = smoothstep(0.34, 0.66, p)*0.35 + smoothstep(0.92, 1.0, p)*0.25;
     for(var i=0; i<KAT.userData.meshes.length; i++){
@@ -425,6 +432,7 @@ function updateKatana(){
     }
   }
 }
+
 
 /* Atmosphere */
 function drawPetalShape(ctx, sz, stroke){
