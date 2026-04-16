@@ -698,4 +698,3 @@ body.is-loading .scroll-spacer{display:none;}
   .vault-card:nth-child(even){grid-template-columns:1fr;direction:ltr;}
   .shf-meta{gap:28px;}
   .ink-deco{display:none;}
-}
