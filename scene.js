@@ -1,9 +1,8 @@
 /* =================================================================
    sumanth.D - SCENE ENGINE v7 FINAL
-   - Removes is-loading body class on boot (unlocks scroll)
-   - SVG filter on hover for water-jelly title effect
-   - Luffy sun position computed from natural image dimensions
-   - All ASCII code paths
+   - Horizontal Katana tracking correctly on Y axis, properly sized.
+   - Electric Blue High-Voltage Lightning
+   - Enhanced Reflections
 ================================================================= */
 
 (function(){
@@ -185,7 +184,7 @@ function enhanceMat(m){
   var b = (col.r+col.g+col.b)/3;
   if(b < 0.18){ mat.metalness = 0.95; mat.roughness = 0.08; }
   else if(b < 0.5){ mat.metalness = 0.72; mat.roughness = 0.22; }
-  mat.envMapIntensity = 1.5;
+  mat.envMapIntensity = 2.0; /* Enhanced reflection boost */
   return mat;
 }
 
@@ -343,53 +342,44 @@ function parallax(el, p, start, end, minS, maxS, mx, my){
   el.style.transform = 'translate3d('+(mx*10).toFixed(1)+'px,'+(my*10 + local*-20).toFixed(1)+'px,0) scale('+scale.toFixed(4)+')';
 }
 
-/* Katana motion */
+/* ============== KATANA CHOREOGRAPHY ============== */
+var lastSmooth = 0;
 function updateKatana(){
   if(!KAT.userData.model) return;
   var p = S.progress;
   var kx, ky, kz, rX, rY, rZ;
 
-  if(p < 0.07){
-    var t = smoothstep(0, 0.07, p);
-    kx = lerp(0.35, 0.22, t);  ky = -0.04;  kz = lerp(0.9, 1.2, t);
-    rX = 0;  rY = 0.3;  rZ = -Math.PI*0.42;
-  } else if(p < 0.22){
-    var t = smoothstep(0.07, 0.22, p);
-    kx = lerp(0.22, 0, t);  ky = lerp(-0.04, 0.05, t);  kz = lerp(1.2, 5.4, t);
-    rX = 0;  rY = lerp(0.3, 0, t);  rZ = lerp(-Math.PI*0.42, 0, t);
-  } else if(p < 0.38){
-    kx = Math.sin(S.t*.28)*.04;
-    ky = 0.05 + Math.sin(S.t*.45)*.025;
-    kz = 5.4 + Math.sin(S.t*0.2)*0.15;
-    rX = Math.sin(S.t*.3)*.006;  rY = 0;  rZ = 0;
-  } else if(p < 0.54){
-    var t = smoothstep(0.38, 0.54, p);
-    kx = lerp(0, -1.3, t);  ky = lerp(0.05, 1.4, t);  kz = lerp(5.4, 4.6, t);
-    rX = lerp(0, -0.30, t);  rY = lerp(0, -0.38, t);  rZ = lerp(0, -Math.PI*0.23, t);
+  var baseY = -Math.PI / 2; // Fixes the pointing-at-camera issue
+  var baseZ = 5.2;          // Pushes it back so it fits in screen
+
+  if(p < 0.12){
+    var t = smoothstep(0, 0.12, p);
+    kx = lerp(-4.0, -1.0, t);  ky = 0;  kz = baseZ;
+    rX = 0;  rY = baseY;  rZ = 0;
+  } else if(p < 0.28){
+    var t = smoothstep(0.12, 0.28, p);
+    kx = lerp(-1.0, 1.5, t);  ky = 0;  kz = baseZ;
+    rX = 0;  rY = baseY;  rZ = 0;
+  } else if(p < 0.45){
+    var t = smoothstep(0.28, 0.45, p);
+    kx = lerp(1.5, 0.5, t);  ky = lerp(0, 0.8, t);  kz = baseZ - 0.4;
+    rX = lerp(0, -0.06, t);  rY = baseY;  rZ = lerp(0, 0.04, t);
   } else if(p < 0.62){
-    var t = smoothstep(0.54, 0.62, p);
-    kx = lerp(-1.3, 1.3, t);  ky = lerp(1.4, 0.3, t);  kz = lerp(4.6, 4.0, t);
-    rX = lerp(-0.30, -0.10, t);  rY = lerp(-0.38, 0.32, t);  rZ = lerp(-Math.PI*0.23, -Math.PI*0.05, t);
-  } else if(p < 0.72){
-    var t = smoothstep(0.62, 0.72, p);
-    kx = lerp(1.3, 0, t);  ky = lerp(0.3, -3.0, t);  kz = lerp(4.0, 3.0, t);
-    rX = lerp(-0.10, -Math.PI*0.22, t);  rY = lerp(0.32, 0, t);  rZ = lerp(-Math.PI*0.05, -Math.PI*0.48, t);
-  } else if(p < 0.94){
-    var t = smoothstep(0.72, 0.94, p);
-    kx = lerp(0, 3.6, t);  ky = lerp(-3.0, 2.2, t);  kz = lerp(3.0, 8.2, t);
-    rX = lerp(-Math.PI*0.22, 0.12, t);  rY = lerp(0, -0.28, t);  rZ = lerp(-Math.PI*0.48, -Math.PI*0.2, t);
-  } else if(p < 0.98){
-    var t = smoothstep(0.94, 0.98, p);
-    kx = lerp(3.6, -2.4, t);  ky = lerp(2.2, -0.8, t);  kz = lerp(8.2, 3.6, t);
-    rX = lerp(0.12, -0.08, t);  rY = lerp(-0.28, 0.2, t);  rZ = lerp(-Math.PI*0.2, -Math.PI*0.48, t);
+    var t = smoothstep(0.45, 0.62, p);
+    kx = lerp(0.5, -1.0, t);  ky = lerp(0.8, -0.4, t);  kz = baseZ;
+    rX = lerp(-0.06, 0, t);  rY = baseY;  rZ = lerp(0.04, -0.02, t);
+  } else if(p < 0.80){
+    var t = smoothstep(0.62, 0.80, p);
+    kx = lerp(-1.0, -2.5, t);  ky = lerp(-0.4, 0, t);  kz = baseZ + 0.5;
+    rX = 0;  rY = baseY;  rZ = lerp(-0.02, 0, t);
   } else {
-    kx = -2.4;  ky = -0.8 + Math.sin(S.t*0.5)*0.02;  kz = 3.6;
-    rX = -0.08;  rY = 0.2 + Math.sin(S.t*0.3)*0.02;  rZ = -Math.PI*0.48;
+    var t = smoothstep(0.80, 1.0, p);
+    kx = lerp(-2.5, 0, t);  ky = lerp(0, -0.3, t);  kz = baseZ;
+    rX = 0;  rY = baseY;  rZ = 0;
   }
 
-  ky += Math.sin(S.t*0.6)*0.005;
-  kx += S.nx*0.015;
-  ky += S.ny*0.015;
+  ky += Math.sin(S.t*0.6)*0.015; // Decoupled breathing hover
+
   if(kz < 1.0) kz = 1.0;
 
   KAT.position.set(kx, ky, kz);
@@ -550,6 +540,8 @@ function drawAtmos(){
     }
   }
 }
+
+/* LIGHTNING */
 function spawnLightning(){
   var x1 = innerWidth * (0.15 + Math.random()*0.7);
   var x2 = x1 + (Math.random()-0.5)*innerWidth*0.4;
@@ -565,12 +557,13 @@ function spawnLightning(){
 }
 function lightningSegments(x1, y1, x2, y2, detail, seed){
   var segs = [[x1, y1]];
-  var N = 12;
+  var N = 16;
   function rng(s){ var x = Math.sin(s+seed)*43758.5; return x - Math.floor(x); }
   for(var i=1; i<N; i++){
     var t = i/N;
     var tx = x1+(x2-x1)*t, ty = y1+(y2-y1)*t;
-    var offset = detail*(rng(i*3.7)-0.5)*46;
+    var offset = detail*(rng(i*3.7)-0.5)*80;
+    if(rng(i*7.1) > 0.85) offset *= 2.2;
     var perpX = -(y2-y1), perpY = (x2-x1);
     var pl = Math.hypot(perpX, perpY);
     segs.push([tx+perpX/pl*offset, ty+perpY/pl*offset]);
@@ -586,24 +579,29 @@ function drawLightning(){
     var op = Math.max(0, b.life);
     var segs = lightningSegments(b.x1, b.y1, b.x2, b.y2, b.life, b.seed);
     ax.lineCap = 'round'; ax.lineJoin = 'round';
-    ax.strokeStyle = 'rgba(180,140,255,'+(op*0.25)+')'; ax.lineWidth = 14;
+    
+    ax.strokeStyle = 'rgba(150, 180, 255,'+(op*0.15)+')'; ax.lineWidth = 18;
     drawPath(ax, segs);
-    ax.strokeStyle = 'rgba(220,200,255,'+(op*0.55)+')'; ax.lineWidth = 5;
+    
+    ax.strokeStyle = 'rgba(210, 230, 255,'+(op*0.6)+')'; ax.lineWidth = 4;
     drawPath(ax, segs);
-    ax.strokeStyle = 'rgba(255,250,255,'+op+')'; ax.lineWidth = 1.5;
+    
+    ax.strokeStyle = 'rgba(255, 255, 255,'+op+')'; ax.lineWidth = 1.2;
     drawPath(ax, segs);
+    
     for(var k=0; k<b.branches; k++){
       var si = Math.floor(segs.length*(0.3+k*0.18));
       if(si >= segs.length-1) continue;
       var sp = segs[si];
       var bAng = Math.atan2(b.y2-b.y1, b.x2-b.x1) + (Math.random()-0.5)*1.5;
-      var bLen = 50+Math.random()*80;
+      var bLen = 30+Math.random()*60; 
       var bx2 = sp[0]+Math.cos(bAng)*bLen;
       var by2 = sp[1]+Math.sin(bAng)*bLen;
       var bSegs = lightningSegments(sp[0], sp[1], bx2, by2, b.life*0.8, b.seed+k*7);
-      ax.strokeStyle = 'rgba(220,200,255,'+(op*0.3)+')'; ax.lineWidth = 6;
+      
+      ax.strokeStyle = 'rgba(180, 210, 255,'+(op*0.25)+')'; ax.lineWidth = 3;
       drawPath(ax, bSegs);
-      ax.strokeStyle = 'rgba(255,240,255,'+(op*0.8)+')'; ax.lineWidth = 1;
+      ax.strokeStyle = 'rgba(255, 255, 255,'+(op*0.7)+')'; ax.lineWidth = 0.8;
       drawPath(ax, bSegs);
     }
   }
@@ -702,7 +700,6 @@ function initJellyGlass(){
       t.style.setProperty('--my', my + '%');
     });
     t.addEventListener('mouseenter', function(){
-      // Animate displacement scale: 0 -> 8 -> 4 (settles to wobble)
       var animEl = document.getElementById('jelly-scale');
       if(animEl){
         animEl.setAttribute('values', '0;14;6;8;5;7;6');
@@ -756,53 +753,34 @@ function showDialogue(idx){
 
 /* Compute Luffy sun position based on dawn image natural dimensions and viewport */
 function computeJumperSunPosition(){
-  // bg-dawn.png: sun is centered horizontally in image, around ~50% vertically
-  // The image is `object-fit: cover` so it scales up and may crop edges
-  // We need to compute where the sun WOULD be in viewport coords given cover scaling
   var dawn = $('bg-dawn');
   if(!dawn || !dawn.naturalWidth || !dawn.naturalHeight) return null;
-
-  // Sun reference position in the source image (proportions of natural size)
-  // Calibrated from your bg-dawn.png - sun is approximately center-50% horizontally, 48% vertically
-  var sunInImageX = 0.50; // 50% across
-  var sunInImageY = 0.48; // 48% down
-
+  var sunInImageX = 0.50; 
+  var sunInImageY = 0.48; 
   var imgW = dawn.naturalWidth;
   var imgH = dawn.naturalHeight;
   var imgRatio = imgW / imgH;
-
-  // The image element itself is sized to inset:-6%; width:112%; height:112%
-  // So its render size matches viewport with overshoot
   var elW = innerWidth * 1.12;
   var elH = innerHeight * 1.12;
   var elRatio = elW / elH;
-
-  // object-fit: cover scaling
   var scale, renderedW, renderedH, offsetX, offsetY;
   if(imgRatio > elRatio){
-    // Image wider than container: scale to fill height, crop sides
     scale = elH / imgH;
     renderedW = imgW * scale;
     renderedH = elH;
     offsetX = (elW - renderedW) / 2;
     offsetY = 0;
   } else {
-    // Image taller than container: scale to fill width, crop top/bottom
     scale = elW / imgW;
     renderedW = elW;
     renderedH = imgH * scale;
     offsetX = 0;
     offsetY = (elH - renderedH) / 2;
   }
-
-  // Sun position in element coords
   var sunX = offsetX + sunInImageX * renderedW;
   var sunY = offsetY + sunInImageY * renderedH;
-
-  // The bg-img has inset:-6% so subtract that offset to get viewport coords
   var insetOffsetX = -innerWidth * 0.06;
   var insetOffsetY = -innerHeight * 0.06;
-
   return {
     x: ((sunX + insetOffsetX) / innerWidth) * 100,
     y: ((sunY + insetOffsetY) / innerHeight) * 100
@@ -830,7 +808,6 @@ function updateBeats(){
   toggle($('dawn-title'), '-on', p > 0.97);
   toggle($('jumper'), '-on', p > 0.97);
 
-  // Luffy sun positioning - dynamic computation per scroll/resize
   var jumper = $('jumper');
   if(p > 0.97){
     var sunPos = computeJumperSunPosition();
@@ -848,6 +825,13 @@ function updateBeats(){
     S.mugenVisible = false;
     S.dialogueIdx = -1;
   }
+  if(p > 0.74 && p < 0.92 && S.mugenVisible){
+    $('mugen').classList.remove('-on');
+  } else if(p > 0.92 && S.dialogueIdx >= 0){
+    $('mugen').classList.add('-on');
+    S.mugenVisible = true;
+  }
+
   $('scroll-pct').textContent = Math.round(p*100) + '%';
   $('progress').style.width = (p*100) + '%';
   $('stat-run').textContent = Math.round(p*100);
@@ -1116,7 +1100,6 @@ function boot(){
   initParticles();
   initJellyGlass();
   setTimeout(function(){
-    // CRITICAL: unlock body scroll
     document.body.classList.remove('is-loading');
     $('loader').classList.add('-out');
     S.lt = performance.now();
