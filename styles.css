@@ -235,72 +235,78 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .cap-bottom{bottom:7vh;left:50%;transform:translateX(-50%);color:var(--grey-dim);}
 .cap-folio{top:9vh;right:10vw;color:var(--grey-dim);}
 
+
 /* =============== BEAT TITLES (BLUR REVEAL + NO BG) =============== */
 .beat-title {
   position: absolute;
   z-index: 22;
   pointer-events: none;
   
-  /* The smooth blur-in reveal */
+  /* Use CSS variables to hold base positions */
+  --tx: -50%;
+  --ty: -50%;
+  --ty-offset: 40px; /* The scroll reveal offset */
+  --scale: 0.95;
+  
+  /* Apply the variables to the transform */
+  transform: translate(var(--tx), calc(var(--ty) + var(--ty-offset))) scale(var(--scale));
+  
   opacity: 0;
   filter: blur(24px); 
-  transform: translateY(40px) scale(0.95);
   transition: opacity 1.2s var(--ease), filter 1.2s var(--ease), transform 1.2s var(--ease);
   
   padding: 0;
   color: #fff;
-  
-  /* Strong, cinematic text shadows to replace the bulky background box */
   text-shadow: 0 4px 40px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,1);
   overflow: visible;
 }
 
-.beat-title > .bt-inner {
-  position: relative;
-  z-index: 1;
-}
-
+/* When active, just zero out the offset and scale, keeping the centering intact */
 .beat-title.-on {
   opacity: 1;
   filter: blur(0px);
-  transform: translateY(0) scale(1);
+  --ty-offset: 0px; 
+  --scale: 1;
 }
 
 .beat-title em { font-style: normal; color: var(--aka); font-weight: 500; }
 .beat-title .accent { color: var(--aka); }
 .beat-title .quiet { opacity: .55; }
 
+/* Individual placements (Transform is removed here, handled by vars) */
 .bt-sacred {
-  top: 44%; left: 50%; transform: translate(-50%,-50%);
+  top: 44%; left: 50%;
+  --tx: -50%; --ty: -50%;
   font-weight: 200; font-size: clamp(26px,4.2vw,58px);
   letter-spacing: -.02em; text-align: center; line-height: 1.12;
   max-width: min(92%,960px); font-family: var(--display);
 }
 .bt-dialogue {
-  top: 20vh; left: 50%; transform: translate(-50%,0);
+  top: 20vh; left: 50%; 
+  --tx: -50%; --ty: 0px;
   font-weight: 400; font-size: clamp(22px,3.5vw,46px); letter-spacing: -.015em;
   text-align: center; max-width: min(90%,880px); line-height: 1.2;
   font-family: var(--serif); font-style: italic;
 }
 .bt-ascent {
-  bottom: 20vh; left: 50%; transform: translate(-50%,0);
+  bottom: 20vh; left: 50%; 
+  --tx: -50%; --ty: 0px;
   font-weight: 300; font-size: clamp(22px,3.8vw,50px); letter-spacing: -.02em;
   text-align: center; max-width: min(90%,880px); line-height: 1.18;
   font-family: var(--display);
 }
 .bt-self {
-  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  top: 50%; left: 50%; 
+  --tx: -50%; --ty: -50%;
   font-family: var(--serif); font-style: italic; font-weight: 500;
   font-size: clamp(28px,4.6vw,62px); letter-spacing: -.01em;
   text-align: center; max-width: min(90%,820px); line-height: 1.12;
   
-  /* Swapped to light color so it's readable without the glass backing */
   color: var(--washi); 
   background: transparent;
   border: none;
 }
 .bt-self em { color: var(--beni); font-style: italic; font-weight: 600; }
-
 /* =============== SCROLL HINT =============== */
 .scroll-hint{
   position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:35;

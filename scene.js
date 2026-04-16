@@ -379,34 +379,38 @@ function updateKatana(){
   var p = S.progress;
   var kx, ky, kz, rX, rY, rZ;
 
-  // Legendary fixed horizontal scroll, left to right, elegant tilts
+  // FIX: The model is exported pointing at the camera (Z-axis).
+  // We rotate Y by -90 degrees to lay it flat horizontally across the screen.
+  var baseY = -Math.PI / 2;
+
+  // Legendary fixed horizontal scroll, tracking left to right
   if(p < 0.12){
     var t = smoothstep(0, 0.12, p);
     kx = lerp(-2.4, -0.6, t);  ky = 0;  kz = 2.4;
-    rX = 0;  rY = 0;  rZ = Math.PI/2;
+    rX = 0;  rY = baseY;  rZ = 0;
   } else if(p < 0.28){
     var t = smoothstep(0.12, 0.28, p);
     kx = lerp(-0.6, 1.8, t);  ky = 0;  kz = 2.4;
-    rX = lerp(0, 0.15, t);  rY = lerp(0, 0.2, t);  rZ = Math.PI/2;
+    rX = lerp(0, 0.15, t);  rY = baseY + lerp(0, 0.2, t);  rZ = 0;
   } else if(p < 0.45){
     var t = smoothstep(0.28, 0.45, p);
     kx = lerp(1.8, 0, t);  ky = lerp(0, 1.2, t);  kz = lerp(2.4, 3.2, t);
-    rX = lerp(0.15, -0.2, t);  rY = lerp(0.2, -0.1, t);  rZ = lerp(Math.PI/2, Math.PI/2.4, t);
+    rX = lerp(0.15, -0.2, t);  rY = baseY + lerp(0.2, -0.1, t);  rZ = lerp(0, 0.2, t);
   } else if(p < 0.62){
     var t = smoothstep(0.45, 0.62, p);
     kx = lerp(0, 1.4, t);  ky = lerp(1.2, -1.0, t);  kz = lerp(3.2, 3.0, t);
-    rX = lerp(-0.2, -0.1, t);  rY = lerp(-0.1, 0.3, t);  rZ = lerp(Math.PI/2.4, Math.PI/2.8, t);
+    rX = lerp(-0.2, -0.1, t);  rY = baseY + lerp(-0.1, 0.3, t);  rZ = lerp(0.2, 0.4, t);
   } else if(p < 0.80){
     var t = smoothstep(0.62, 0.80, p);
     kx = lerp(1.4, -1.6, t);  ky = lerp(-1.0, 0.6, t);  kz = lerp(3.0, 2.6, t);
-    rX = lerp(-0.1, 0.1, t);  rY = lerp(0.3, 0, t);  rZ = lerp(Math.PI/2.8, Math.PI/1.8, t);
+    rX = lerp(-0.1, 0.1, t);  rY = baseY + lerp(0.3, 0, t);  rZ = lerp(0.4, 0.1, t);
   } else {
     var t = smoothstep(0.80, 1.0, p);
     kx = lerp(-1.6, -2.6, t);  ky = lerp(0.6, -0.8, t);  kz = lerp(2.6, 2.8, t);
-    rX = lerp(0.1, -0.05, t);  rY = lerp(0, 0.1, t);  rZ = lerp(Math.PI/1.8, Math.PI/2, t);
+    rX = lerp(0.1, -0.05, t);  rY = baseY + lerp(0, 0.1, t);  rZ = lerp(0.1, 0, t);
   }
 
-  // Gentle breathing hover, decoupled from mouse movement
+  // Gentle cinematic breathing hover, totally decoupled from the mouse
   ky += Math.sin(S.t*0.6)*0.015;
 
   if(kz < 1.0) kz = 1.0;
@@ -414,6 +418,7 @@ function updateKatana(){
   KAT.position.set(kx, ky, kz);
   KAT.rotation.set(rX, rY, rZ);
 
+  // Lighting transitions based on scroll depth
   if(p < 0.38){
     keyL.color.setHex(0xffe0b8); keyL.intensity = 1.1;
     rimL.color.setHex(0xff6030); rimL.intensity = 0.5;
@@ -602,14 +607,18 @@ function spawnLightning(){
   toggle($('overlay-chromatic'), '-strong', true);
   setTimeout(function(){ toggle($('overlay-chromatic'), '-strong', false); }, 220);
 }
+/* LIGHTNING */
 function lightningSegments(x1, y1, x2, y2, detail, seed){
   var segs = [[x1, y1]];
-  var N = 12;
+  var N = 16; // More segments for sharper zig-zags
   function rng(s){ var x = Math.sin(s+seed)*43758.5; return x - Math.floor(x); }
   for(var i=1; i<N; i++){
     var t = i/N;
     var tx = x1+(x2-x1)*t, ty = y1+(y2-y1)*t;
-    var offset = detail*(rng(i*3.7)-0.5)*46;
+    // High variance for jagged, realistic breaks
+    var offset = detail*(rng(i*3.7)-0.5)*80;
+    // Occasional sharp, unpredictable spikes
+    if(rng(i*7.1) > 0.85) offset *= 2.2;
     var perpX = -(y2-y1), perpY = (x2-x1);
     var pl = Math.hypot(perpX, perpY);
     segs.push([tx+perpX/pl*offset, ty+perpY/pl*offset]);
@@ -617,31 +626,40 @@ function lightningSegments(x1, y1, x2, y2, detail, seed){
   segs.push([x2, y2]);
   return segs;
 }
+
 function drawLightning(){
   S.lightning = S.lightning.filter(function(b){ return b.life > 0; });
   S.lightning.forEach(function(b){
     b.life -= b.decay;
     var op = Math.max(0, b.life);
     var segs = lightningSegments(b.x1, b.y1, b.x2, b.y2, b.life, b.seed);
+    
     ax.lineCap = 'round'; ax.lineJoin = 'round';
-    ax.strokeStyle = 'rgba(180,140,255,'+(op*0.25)+')'; ax.lineWidth = 14;
+    
+    // Realistic electric blue and intense white cores
+    ax.strokeStyle = 'rgba(150, 180, 255,'+(op*0.15)+')'; ax.lineWidth = 18;
     drawPath(ax, segs);
-    ax.strokeStyle = 'rgba(220,200,255,'+(op*0.55)+')'; ax.lineWidth = 5;
+    
+    ax.strokeStyle = 'rgba(210, 230, 255,'+(op*0.6)+')'; ax.lineWidth = 4;
     drawPath(ax, segs);
-    ax.strokeStyle = 'rgba(255,250,255,'+op+')'; ax.lineWidth = 1.5;
+    
+    ax.strokeStyle = 'rgba(255, 255, 255,'+op+')'; ax.lineWidth = 1.2;
     drawPath(ax, segs);
+    
     for(var k=0; k<b.branches; k++){
       var si = Math.floor(segs.length*(0.3+k*0.18));
       if(si >= segs.length-1) continue;
       var sp = segs[si];
       var bAng = Math.atan2(b.y2-b.y1, b.x2-b.x1) + (Math.random()-0.5)*1.5;
-      var bLen = 50+Math.random()*80;
+      var bLen = 30+Math.random()*60; 
       var bx2 = sp[0]+Math.cos(bAng)*bLen;
       var by2 = sp[1]+Math.sin(bAng)*bLen;
       var bSegs = lightningSegments(sp[0], sp[1], bx2, by2, b.life*0.8, b.seed+k*7);
-      ax.strokeStyle = 'rgba(220,200,255,'+(op*0.3)+')'; ax.lineWidth = 6;
+      
+      // Stark, jagged branches
+      ax.strokeStyle = 'rgba(180, 210, 255,'+(op*0.25)+')'; ax.lineWidth = 3;
       drawPath(ax, bSegs);
-      ax.strokeStyle = 'rgba(255,240,255,'+(op*0.8)+')'; ax.lineWidth = 1;
+      ax.strokeStyle = 'rgba(255, 255, 255,'+(op*0.7)+')'; ax.lineWidth = 0.8;
       drawPath(ax, bSegs);
     }
   });
@@ -674,13 +692,7 @@ function updateMGlyph(){
 var KANA = 'aiueokakikukekosashisusesotachitsutetonaninunenohachifuhema';
 var KANJI = 'kentoukokoroyumegen';
 var SYMBOLS = '|/\\-_+';
-function scrambleChar(){
-  var src = Math.random() < 0.5 ? KANA : (Math.random() < 0.6 ? KANJI : SYMBOLS);
-  return src.charAt(Math.floor(Math.random()*src.length));
-}
 function runScramble(el){
-  var inner = el.querySelector('.bt-inner');
-  if(!inner) return;
   if(el._scrambling) return;
   var target = el.dataset.target;
   if(!target) return;
@@ -693,7 +705,7 @@ function runScramble(el){
     step++;
     var prog = step/steps;
     if(step >= steps){
-      inner.innerHTML = lines.join('<br>');
+      el.innerHTML = lines.join('<br>'); // Fixed target
       el._scrambling = false;
       return;
     }
@@ -705,7 +717,7 @@ function runScramble(el){
       for(var i=0; i<scrLen; i++) s += scrambleChar();
       return s;
     });
-    inner.innerHTML = mixed.join('<br>');
+    el.innerHTML = mixed.join('<br>'); // Fixed target
     setTimeout(tick, 50);
   };
   tick();
