@@ -371,105 +371,91 @@ function updateInkBleed(){
   }
 }
 
-/* KATANA - scroll only + slight cursor parallax (NO cursor following) */
-var scrollVel = 0, lastSmooth = 0;
+
+/* ============== KATANA CHOREOGRAPHY ============== */
+var lastSmooth = 0;
 function updateKatana(){
   if(!KAT.userData.model) return;
   var p = S.progress;
-
-  scrollVel = scrollVel * 0.9 + (S.smooth - lastSmooth) * 0.1;
-  lastSmooth = S.smooth;
-
   var kx, ky, kz, rX, rY, rZ;
 
-  if(p < 0.07){
-    var t = smoothstep(0, 0.07, p);
-    kx = lerp(0.3, 0.2, t);  ky = -0.04;  kz = lerp(0.6, 0.9, t);
-    rX = 0;  rY = 0.3;  rZ = -Math.PI*0.42;
-  } else if(p < 0.22){
-    var t = smoothstep(0.07, 0.22, p);
-    kx = lerp(0.2, 0, t);  ky = lerp(-0.04, 0.05, t);  kz = lerp(0.9, 5.2, t);
-    rX = 0;  rY = lerp(0.3, 0, t);  rZ = lerp(-Math.PI*0.42, 0, t);
-  } else if(p < 0.40){
-    /* hold during dialogue */
-    kx = Math.sin(S.t*.28)*.05;  ky = 0.05 + Math.sin(S.t*.45)*.02;
-    kz = lerp(5.2, 5.6, smoothstep(0.22, 0.40, p));
-    rX = Math.sin(S.t*.3)*.006;  rY = 0;  rZ = 0;
-  } else if(p < 0.56){
-    var t = smoothstep(0.40, 0.56, p);
-    kx = lerp(0, -1.2, t);  ky = lerp(0.05, 1.4, t);  kz = lerp(5.6, 4.6, t);
-    rX = lerp(0, -0.32, t);  rY = lerp(0, -0.4, t);  rZ = lerp(0, -Math.PI*0.25, t);
-  } else if(p < 0.68){
-    var t = smoothstep(0.56, 0.68, p);
-    kx = lerp(-1.2, 1.2, t);  ky = lerp(1.4, 0.3, t);  kz = lerp(4.6, 4.0, t);
-    rX = lerp(-0.32, -0.12, t);  rY = lerp(-0.4, 0.3, t);  rZ = lerp(-Math.PI*0.25, -Math.PI*0.06, t);
-  } else if(p < 0.74){
-    /* impact dive */
-    var t = smoothstep(0.68, 0.74, p);
-    kx = lerp(1.2, 0, t);  ky = lerp(0.3, -2.5, t);  kz = lerp(4.0, 3.0, t);
-    rX = lerp(-0.12, -Math.PI*0.25, t);  rY = lerp(0.3, 0, t);  rZ = lerp(-Math.PI*0.06, -Math.PI*0.5, t);
-  } else if(p < 0.92){
-    /* hide off-screen during skill hub */
-    kx = 8;  ky = 4;  kz = 10;
-    rX = 0;  rY = 0;  rZ = -Math.PI*0.5;
-  } else if(p < 0.96){
-    /* moonlit */
-    var t = smoothstep(0.92, 0.96, p);
-    kx = lerp(8, -2.4, t);  ky = lerp(4, -0.8, t);  kz = lerp(10, 3.4, t);
-    rX = lerp(0, -0.08, t);  rY = lerp(0, 0.2, t);  rZ = lerp(-Math.PI*0.5, -Math.PI*0.48, t);
+  // Legendary fixed horizontal scroll, left to right, elegant tilts
+  if(p < 0.12){
+    var t = smoothstep(0, 0.12, p);
+    kx = lerp(-2.4, -0.6, t);  ky = 0;  kz = 2.4;
+    rX = 0;  rY = 0;  rZ = Math.PI/2;
+  } else if(p < 0.28){
+    var t = smoothstep(0.12, 0.28, p);
+    kx = lerp(-0.6, 1.8, t);  ky = 0;  kz = 2.4;
+    rX = lerp(0, 0.15, t);  rY = lerp(0, 0.2, t);  rZ = Math.PI/2;
+  } else if(p < 0.45){
+    var t = smoothstep(0.28, 0.45, p);
+    kx = lerp(1.8, 0, t);  ky = lerp(0, 1.2, t);  kz = lerp(2.4, 3.2, t);
+    rX = lerp(0.15, -0.2, t);  rY = lerp(0.2, -0.1, t);  rZ = lerp(Math.PI/2, Math.PI/2.4, t);
+  } else if(p < 0.62){
+    var t = smoothstep(0.45, 0.62, p);
+    kx = lerp(0, 1.4, t);  ky = lerp(1.2, -1.0, t);  kz = lerp(3.2, 3.0, t);
+    rX = lerp(-0.2, -0.1, t);  rY = lerp(-0.1, 0.3, t);  rZ = lerp(Math.PI/2.4, Math.PI/2.8, t);
+  } else if(p < 0.80){
+    var t = smoothstep(0.62, 0.80, p);
+    kx = lerp(1.4, -1.6, t);  ky = lerp(-1.0, 0.6, t);  kz = lerp(3.0, 2.6, t);
+    rX = lerp(-0.1, 0.1, t);  rY = lerp(0.3, 0, t);  rZ = lerp(Math.PI/2.8, Math.PI/1.8, t);
   } else {
-    /* dawn */
-    kx = -2.4;  ky = -0.8 + Math.sin(S.t*0.5)*0.02;  kz = 3.4;
-    rX = -0.08;  rY = 0.2 + Math.sin(S.t*0.3)*0.02;  rZ = -Math.PI*0.48;
+    var t = smoothstep(0.80, 1.0, p);
+    kx = lerp(-1.6, -2.6, t);  ky = lerp(0.6, -0.8, t);  kz = lerp(2.6, 2.8, t);
+    rX = lerp(0.1, -0.05, t);  rY = lerp(0, 0.1, t);  rZ = lerp(Math.PI/1.8, Math.PI/2, t);
   }
 
-  ky += Math.sin(S.t*0.7)*0.005;
-  rZ += scrollVel * 0.0006;
+  // Gentle breathing hover, decoupled from mouse movement
+  ky += Math.sin(S.t*0.6)*0.015;
 
-  /* slight cursor parallax only (not following) */
-  KAT.position.set(kx + S.nx*0.04, ky + S.ny*0.04, kz);
+  if(kz < 1.0) kz = 1.0;
+
+  KAT.position.set(kx, ky, kz);
   KAT.rotation.set(rX, rY, rZ);
 
-  /* lighting per beat */
-  if(p < 0.40){
-    keyL.color.setHex(0xffe0b8); keyL.intensity = 1.2;
-    rimL.color.setHex(0xff6030); rimL.intensity = 0.55;
+  if(p < 0.38){
+    keyL.color.setHex(0xffe0b8); keyL.intensity = 1.1;
+    rimL.color.setHex(0xff6030); rimL.intensity = 0.5;
     moonL.intensity = 0; sunL.intensity = 0;
-  } else if(p < 0.68){
-    keyL.color.setHex(0xffc890); keyL.intensity = 1.4;
+  } else if(p < 0.62){
+    keyL.color.setHex(0xffc890); keyL.intensity = 1.3;
     rimL.color.setHex(0xc83c28); rimL.intensity = 0.7;
     moonL.intensity = 0; sunL.intensity = 0;
-  } else if(p < 0.92){
+  } else if(p < 0.94){
     keyL.color.setHex(0xffe8d0); keyL.intensity = 1.2;
     rimL.color.setHex(0x8b6340); rimL.intensity = 0.3;
     moonL.intensity = 0; sunL.intensity = 0;
-  } else if(p < 0.96){
-    keyL.color.setHex(0xb8cde8); keyL.intensity = 0.8;
+  } else if(p < 0.98){
+    keyL.color.setHex(0xb8cde8); keyL.intensity = 0.7;
     rimL.color.setHex(0x3a4a6a); rimL.intensity = 0.5;
-    moonL.intensity = smoothstep(0.92, 0.96, p)*1.0; sunL.intensity = 0;
+    moonL.intensity = smoothstep(0.94, 0.98, p)*1.1; sunL.intensity = 0;
   } else {
-    keyL.color.setHex(0xffd890); keyL.intensity = 1.0;
+    keyL.color.setHex(0xffd890); keyL.intensity = 0.9;
     rimL.color.setHex(0xffa040); rimL.intensity = 0.9;
-    moonL.intensity = 0; sunL.intensity = 1.4;
+    moonL.intensity = 0; sunL.intensity = 1.3;
   }
 
-  edgeAccent.intensity = smoothstep(0.22, 0.60, p)*1.0 + smoothstep(0.92, 1.0, p)*0.8;
+  edgeAccent.intensity = smoothstep(0.25, 0.60, p)*0.9 + smoothstep(0.92, 1.0, p)*0.8;
   edgeAccent.position.set(KAT.position.x, KAT.position.y, KAT.position.z + 0.4);
 
   if(S.flashIntensity > 0){
     flashL.intensity = S.flashIntensity * 12;
     S.flashIntensity *= 0.85;
-  } else flashL.intensity = 0;
+  } else {
+    flashL.intensity = 0;
+  }
 
   if(KAT.userData.meshes){
-    var eW = smoothstep(0.34, 0.66, p)*0.36 + smoothstep(0.92, 1.0, p)*0.22;
-    KAT.userData.meshes.forEach(function(m){
+    var eW = smoothstep(0.34, 0.66, p)*0.35 + smoothstep(0.92, 1.0, p)*0.25;
+    for(var i=0; i<KAT.userData.meshes.length; i++){
+      var m = KAT.userData.meshes[i];
       if(m.material && m.material.emissive){
         var col = m.material.color;
         var b = (col.r+col.g+col.b)/3;
-        if(b < 0.18) m.material.emissive.setRGB(eW*0.28, eW*0.05, eW*0.02);
+        if(b < 0.18){ m.material.emissive.setRGB(eW*0.28, eW*0.05, eW*0.02); }
       }
-    });
+    }
   }
 }
 
