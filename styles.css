@@ -2,8 +2,9 @@
    sumanth.D - STYLES v7 FINAL
    - body locked while loading (no scroll, no flash)
    - water-jelly liquid title with SVG displacement
-   - ink silhouettes wired in (fixed z-index to sit behind cards)
+   - ink silhouettes wired in
    - vault cards use ink-frame-texture as actual border
+   - FIX: Silhouettes pushed behind the black ink animation
 ================================================================= */
 
 @font-face { font-family:'Inter Tight'; src:url('fonts/InterTight-Light.ttf') format('truetype'); font-weight:300; font-display:swap; }
@@ -50,6 +51,7 @@ html,body{
   cursor:none;
 }
 
+/* CRITICAL: lock scroll while loading - prevents pre-load page flash */
 body.is-loading{
   overflow:hidden !important;
   height:100vh !important;
@@ -245,71 +247,86 @@ body.is-loading .scroll-spacer{display:none;}
 .cap-bottom{bottom:7vh;left:50%;transform:translateX(-50%);color:var(--grey-dim);}
 .cap-folio{top:9vh;right:10vw;color:var(--grey-dim);}
 
-/* =============== BEAT TITLES - BLUR REVEAL + NO BG =============== */
-.beat-title {
-  position: absolute;
-  z-index: 22;
-  pointer-events: none;
-  
-  --tx: -50%;
-  --ty: -50%;
-  --ty-offset: 40px;
-  --scale: 0.95;
-  
-  transform: translate(var(--tx), calc(var(--ty) + var(--ty-offset))) scale(var(--scale));
-  opacity: 0;
-  filter: blur(24px); 
-  transition: opacity 1.2s var(--ease), filter 1.2s var(--ease), transform 1.2s var(--ease);
-  
-  padding: 0;
-  color: #fff;
-  text-shadow: 0 4px 40px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,1);
-  overflow: visible;
+/* =============== BEAT TITLES - LIQUID JELLY GLASS =============== */
+.beat-title{
+  position:absolute;z-index:22;pointer-events:auto;
+  opacity:0;
+  transition:opacity 1.1s var(--ease);
+  padding:28px 44px;
+  border-radius:20px;
+  background:rgba(14,12,8,.34);
+  backdrop-filter:blur(14px) saturate(160%) brightness(.72);
+  -webkit-backdrop-filter:blur(14px) saturate(160%) brightness(.72);
+  border:1px solid rgba(245,237,224,.12);
+  box-shadow:
+    0 20px 60px -10px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.1),
+    inset 0 -1px 0 rgba(0,0,0,.2);
+  color:#fff;
+  transition:opacity 1.1s var(--ease), filter .3s var(--ease);
+  overflow:visible;
 }
+.beat-title.-on{opacity:1;}
+.beat-title.-jelly{
+  filter:url(#liquid-jelly);
+}
+.beat-title > .bt-inner{
+  transform:translateY(36px);
+  transition:transform 1.2s var(--ease);
+  position:relative;z-index:2;
+}
+.beat-title.-on > .bt-inner{transform:translateY(0);}
 
-.beat-title.-on {
-  opacity: 1;
-  filter: blur(0px);
-  --ty-offset: 0px; 
-  --scale: 1;
+.beat-title::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:20px;
+  background:radial-gradient(circle 200px at var(--mx, 50%) var(--my, 50%),
+    rgba(245,237,224,.18) 0%,
+    rgba(245,237,224,.06) 35%,
+    transparent 70%);
+  opacity:0;
+  transition:opacity .4s var(--ease);
+  pointer-events:none;
+  z-index:1;
 }
+.beat-title:hover::before{opacity:1;}
 
 .beat-title em{font-style:normal;color:var(--aka);font-weight:500;}
 .beat-title .accent{color:var(--aka);}
 .beat-title .quiet{opacity:.55;}
 
-.bt-sacred {
-  top: 44%; left: 50%;
-  --tx: -50%; --ty: -50%;
-  font-weight: 200; font-size: clamp(26px,4.2vw,58px);
-  letter-spacing: -.02em; text-align: center; line-height: 1.12;
-  max-width: min(92%,960px); font-family: var(--display);
+.bt-sacred{
+  top:44%;left:50%;transform:translate(-50%,-50%);
+  font-weight:200;font-size:clamp(26px,4.2vw,58px);
+  letter-spacing:-.02em;text-align:center;line-height:1.12;
+  max-width:min(92%,960px);font-family:var(--display);
 }
-.bt-dialogue {
-  top: 20vh; left: 50%; 
-  --tx: -50%; --ty: 0px;
-  font-weight: 400; font-size: clamp(22px,3.5vw,46px); letter-spacing: -.015em;
-  text-align: center; max-width: min(90%,880px); line-height: 1.2;
-  font-family: var(--serif); font-style: italic;
+.bt-dialogue{
+  top:20vh;left:50%;transform:translate(-50%,0);
+  font-weight:400;font-size:clamp(22px,3.5vw,46px);letter-spacing:-.015em;
+  text-align:center;max-width:min(90%,880px);line-height:1.2;
+  font-family:var(--serif);font-style:italic;
 }
-.bt-ascent {
-  bottom: 20vh; left: 50%; 
-  --tx: -50%; --ty: 0px;
-  font-weight: 300; font-size: clamp(22px,3.8vw,50px); letter-spacing: -.02em;
-  text-align: center; max-width: min(90%,880px); line-height: 1.18;
-  font-family: var(--display);
+.bt-ascent{
+  bottom:20vh;left:50%;transform:translate(-50%,0);
+  font-weight:300;font-size:clamp(22px,3.8vw,50px);letter-spacing:-.02em;
+  text-align:center;max-width:min(90%,880px);line-height:1.18;
+  font-family:var(--display);
 }
-.bt-self {
-  top: 50%; left: 50%; 
-  --tx: -50%; --ty: -50%;
-  font-family: var(--serif); font-style: italic; font-weight: 500;
-  font-size: clamp(28px,4.6vw,62px); letter-spacing: -.01em;
-  text-align: center; max-width: min(90%,820px); line-height: 1.12;
-  color: var(--washi); 
-  background: transparent;
-  border: none;
+.bt-self{
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:clamp(28px,4.6vw,62px);letter-spacing:-.01em;
+  text-align:center;max-width:min(90%,820px);line-height:1.12;
+  color:var(--grey-dark);
+  background:rgba(245,237,224,.7);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border-color:rgba(58,52,45,.2);
 }
-.bt-self em { color: var(--beni); font-style: italic; font-weight: 600; }
+.bt-self em{color:var(--beni);font-style:italic;font-weight:600;}
 
 .scroll-hint{
   position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:35;
@@ -498,19 +515,23 @@ body.is-loading .scroll-spacer{display:none;}
   overflow-y:auto;overflow-x:hidden;
 }
 .ink-system.-on{opacity:1;pointer-events:auto;}
-.ink-atmos{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
 
-/* IMPORTANT FIX: Scroll inner is z-index:3, Silhouettes are z-index:2 (behind the cards) */
+/* FIX: Ensure ink clouds canvas renders OVER the silhouettes */
+.ink-atmos{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;}
+
+/* Ensure the scroll content stays above the ink clouds */
 .ink-scroll-inner{position:relative;z-index:3;}
 
+/* FIX: Push silhouettes to the very back, behind ink clouds and cards */
 .ink-deco{
   position:fixed;
   pointer-events:none;
   opacity:0;
-  z-index:2; /* Fixed from 3 to 2 so they sit behind the vault cards */
+  z-index:1; 
   filter:drop-shadow(0 6px 16px rgba(0,0,0,.15));
   transition:opacity 2s var(--ease) 1s;
 }
+
 .ink-system.-on .ink-deco{opacity:.85;}
 .ink-deco-branch{
   top:6vh;right:-3vw;width:42vw;max-width:540px;
@@ -698,3 +719,4 @@ body.is-loading .scroll-spacer{display:none;}
   .vault-card:nth-child(even){grid-template-columns:1fr;direction:ltr;}
   .shf-meta{gap:28px;}
   .ink-deco{display:none;}
+}
