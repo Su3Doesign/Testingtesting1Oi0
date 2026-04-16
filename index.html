@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>sumanth.D - builder of worlds</title>
+<title>sumanth.D &mdash; Builder of Worlds</title>
 <meta name="description" content="Sumanth Amidyala - 3D environment designer, hard-surface modeller, builder of worlds.">
 
 <link rel="preload" as="image" href="assets/bg-hero.png">
@@ -13,11 +13,31 @@
 <link rel="preload" as="image" href="assets/sensei-mugen.png">
 <link rel="preload" as="image" href="assets/jumper-silhouette.png">
 <link rel="preload" as="image" href="assets/texture-paper.jpg">
+<link rel="preload" as="image" href="assets/ink-frame-texture.png">
+<link rel="preload" as="image" href="assets/ink-silhouette-branch.png">
+<link rel="preload" as="image" href="assets/ink-silhouette-crow.png">
+<link rel="preload" as="image" href="assets/ink-silhouette-koi.png">
+<link rel="preload" as="image" href="assets/ink-silhouette-wave.png">
 
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="is-loading">
 
+<!-- SVG filter for liquid jelly displacement on title hover -->
+<svg width="0" height="0" style="position:absolute;">
+  <defs>
+    <filter id="liquid-jelly" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="3" result="noise">
+        <animate attributeName="baseFrequency" dur="20s" values="0.012 0.018;0.018 0.012;0.012 0.018" repeatCount="indefinite"/>
+      </feTurbulence>
+      <feDisplacementMap in="SourceGraphic" in2="noise" scale="0" xChannelSelector="R" yChannelSelector="G" result="displaced">
+        <animate attributeName="scale" dur="0.6s" values="0;0" id="jelly-scale"/>
+      </feDisplacementMap>
+    </filter>
+  </defs>
+</svg>
+
+<!-- Loader -->
 <div class="loader" id="loader">
   <div class="loader-inner">
     <div class="loader-mark">
@@ -27,17 +47,17 @@
     <div class="loader-text" id="loader-text">Forging</div>
     <div class="loader-meta-l">ALL BLUE / TRANSMISSION 01</div>
     <div class="loader-meta-r" id="loader-pct">000 %</div>
-    <button class="loader-skip" id="loader-skip">SKIP</button>
+    <button class="loader-skip" id="loader-skip" type="button">SKIP</button>
   </div>
 </div>
 
 <div class="stage" id="stage">
 
+  <!-- Background -->
   <div class="bg-scene">
     <img class="bg-img" id="bg-hero"    src="assets/bg-hero.png"    alt="" decoding="async">
     <img class="bg-img" id="bg-clouds"  src="assets/bg-clouds.png"  alt="" decoding="async">
-    <div class="bg-img" id="bg-impact" aria-hidden="true"></div>
-    <img class="bg-img" id="bg-paper"   src="assets/texture-paper.jpg" alt="" decoding="async">
+    <div class="bg-img" id="bg-paper"></div>
     <img class="bg-img" id="bg-hilltop" src="assets/bg-hilltop.png" alt="" decoding="async">
     <img class="bg-img" id="bg-dawn"    src="assets/bg-dawn.png"    alt="" decoding="async">
   </div>
@@ -46,23 +66,23 @@
   <canvas class="layer layer-three" id="three"></canvas>
   <canvas class="layer layer-atmos" id="atmos"></canvas>
 
-  <div class="ink-bleed" id="ink-bleed" aria-hidden="true">
-    <div class="ink-bleed-tl"></div>
-    <div class="ink-bleed-tr"></div>
-    <div class="ink-bleed-bl"></div>
-    <div class="ink-bleed-br"></div>
-    <div class="ink-bleed-center"></div>
+  <!-- Sumi ink bleed -->
+  <div class="sumi-bleed" id="sumi-bleed">
+    <div class="sumi-edge sumi-t"></div>
+    <div class="sumi-edge sumi-b"></div>
+    <div class="sumi-edge sumi-l"></div>
+    <div class="sumi-edge sumi-r"></div>
   </div>
 
   <div class="progress-line" id="progress"></div>
-
   <div class="overlay-chromatic" id="overlay-chromatic"></div>
-  <div class="overlay-grain"></div>
+  <div class="overlay-grain" id="overlay-grain"></div>
   <div class="overlay-scanlines"></div>
   <div class="overlay-vignette"></div>
 
+  <!-- Chrome -->
   <header class="chrome">
-    <div class="brand">
+    <div class="brand" data-cursor="hover">
       <div class="brand-icon">
         <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M3 21l6-6"/><path d="M9 15l9-9 3 3-9 9-3-3z"/><path d="M14 7l3 3"/>
@@ -72,134 +92,132 @@
         <span>su</span><span class="brand-m" id="brand-m">m</span><span class="brand-d">.D</span><sup>&copy;</sup>
       </div>
     </div>
-    <nav class="chapters" id="chapters">
+
+    <nav class="chapters" id="chapters" data-cursor="hover">
       <div class="chapter-pill -num" id="ch-num">01</div>
-      <div class="chapter-pill -active">
+      <div class="chapter-pill -active" id="ch-main">
         <span class="ch-label" id="ch-label">Codex</span>
         <div class="ch-expand" id="ch-expand">
-          <div class="ch-item" data-jump="0.12">II - Sacred Tree</div>
-          <div class="ch-item" data-jump="0.45">III - Ascent</div>
-          <div class="ch-item" data-jump="0.72">IV - Skill Hub</div>
-          <div class="ch-item" data-jump="0.86">V - Moonlit Hill</div>
-          <div class="ch-item" data-jump="0.97">VI - Dawn</div>
+          <div class="ch-item" data-jump="0.12">II &middot; Sacred Tree</div>
+          <div class="ch-item" data-jump="0.44">III &middot; Ascent</div>
+          <div class="ch-item" data-jump="0.72">IV &middot; Skill Hub</div>
+          <div class="ch-item" data-jump="0.94">V &middot; Moonlit</div>
+          <div class="ch-item" data-jump="0.98">VI &middot; Dawn</div>
         </div>
       </div>
     </nav>
+
     <div class="scroll-pct" id="scroll-pct">0%</div>
   </header>
 
   <div class="stats">
     <span>FPS <span id="stat-fps">60</span></span>
-    <span>RUNWAY <span id="stat-run">0</span>%</span>
+    <span>SCROLL <span id="stat-run">0</span>%</span>
     <span>MODE <span id="stat-mode">CODEX</span></span>
   </div>
 
+  <!-- Beat 1: Hero monogram -->
   <div class="hero-monogram" id="hero-monogram">
     <span>su</span><span class="hm-m" id="hm-m">m</span><span class="hm-d">.D</span><span class="hm-c">&copy;</span>
   </div>
 
-  <div class="caption cap-chapter" id="cap-chapter">CHAPTER ONE - INHERITANCE</div>
-  <div class="caption cap-bottom"  id="cap-bottom">FROM HYDERABAD - A CRAFTSMAN</div>
-  <div class="caption cap-folio"   id="cap-folio">VOL 4.6 - FOLIO 001</div>
+  <!-- Captions -->
+  <div class="caption cap-chapter" id="cap-chapter">CHAPTER I &middot; INHERITANCE</div>
+  <div class="caption cap-bottom"  id="cap-bottom">FROM HYDERABAD &mdash; A CRAFTSMAN</div>
+  <div class="caption cap-folio"   id="cap-folio">VOL 4.6 / FOLIO 001</div>
 
+  <!-- Beat titles - liquid jelly glass -->
   <div class="beat-title bt-sacred" id="bt-sacred"
-       data-target="A blade is just steel,|until &lt;em&gt;someone&lt;/em&gt; chooses to lift it.">
-    <div class="bt-inner"></div>
-    <div class="bt-lens"></div>
-  </div>
+       data-target="A blade is just steel,|until <em>someone</em> chooses to lift it."></div>
 
   <div class="beat-title bt-dialogue" id="bt-dialogue"
-       data-target="&lt;span class='quiet'&gt;And so -&lt;/span&gt;|&lt;span class='accent'&gt;the world I wanted&lt;/span&gt;|&lt;span class='quiet'&gt;was the one I had to build.&lt;/span&gt;">
-    <div class="bt-inner"></div>
-    <div class="bt-lens"></div>
-  </div>
+       data-target="<span class='quiet'>And so &mdash;</span>|<span class='accent'>the world I wanted</span>|<span class='quiet'>was the one I had to build.</span>"></div>
 
   <div class="beat-title bt-ascent" id="bt-ascent"
-       data-target="Between &lt;em&gt;clouds&lt;/em&gt; and &lt;em&gt;thunder&lt;/em&gt;,|a blade remembers its weight.">
-    <div class="bt-inner"></div>
-    <div class="bt-lens"></div>
-  </div>
+       data-target="Between <em>clouds</em> and <em>thunder</em>,|a blade remembers its weight."></div>
 
-  <div class="bt-impact" id="bt-impact">
-    <div class="bti-text">"To master the craft is to master <em>the self</em>."</div>
-  </div>
+  <div class="beat-title bt-self" id="bt-self"
+       data-target="To master the craft|is to master <em>the self</em>."></div>
 
-  <section class="skillhub-intro" id="skillhub-intro" aria-hidden="true">
-    <div class="shi-kicker">WORKS - SAKUHIN</div>
-    <h2 class="shi-title">The worlds<br>I have begun<br><em>to build.</em></h2>
-    <p class="shi-sub">Environment design, hard-surface modelling, and the objects that inhabit imagined spaces. Selected from 2023 onward.</p>
+  <!-- Skill Hub -->
+  <section class="skillhub" id="skillhub">
+    <div class="sh-intro" id="sh-intro">
+      <div class="sh-kicker">WORKS</div>
+      <h2 class="sh-title">The worlds<br>I have begun<br><em>to build.</em></h2>
+      <p class="sh-sub">Environment design, hard-surface modelling, and the objects that inhabit imagined spaces. Seven pieces across three continents - 2023 to the present.</p>
+    </div>
+
+    <div class="sh-ledger" id="sh-ledger"></div>
+
+    <div class="sh-feature" id="sh-feature">
+      <div class="shf-kicker">FEATURE</div>
+      <h3 class="shf-title"><em>Fud&#333;</em> My&#333;&#333;</h3>
+      <p class="shf-role">Environment &middot; Personal &middot; 2025</p>
+      <p class="shf-desc">A sanctum of still fire. Shingon iconography rendered as walkable space - the immovable wisdom king held in modelled silence.</p>
+      <div class="shf-meta">
+        <div><span>TRIANGLES</span><strong>4.1M</strong></div>
+        <div><span>TEXTURES</span><strong>38 maps</strong></div>
+        <div><span>TIME</span><strong>6 weeks</strong></div>
+      </div>
+    </div>
   </section>
 
-  <section class="skillhub-list" id="skillhub-list" aria-hidden="true">
-    <div class="shl-rail" id="shl-rail"></div>
-  </section>
-
-  <section class="skillhub-feature" id="skillhub-feature" aria-hidden="true">
-    <div class="shf-tag">FEATURED PROJECT</div>
-    <h3 class="shf-title"><em>Fudo Myoo</em></h3>
-    <p class="shf-meta">2025 - Personal - Environment / Hard-Surface</p>
-    <p class="shf-body">A sanctum of still fire. Personal exploration of Shingon iconography rendered as inhabitable space - the deity at rest, the room around him cast in ember glow. Built in Blender, finished in Substance, lit in Cycles.</p>
-    <div class="shf-foot">view full case study soon</div>
-  </section>
-
+  <!-- Dawn -->
   <div class="dawn-title" id="dawn-title">
-    <div class="dt-kicker">YOAKE - The Dawn</div>
+    <div class="dt-kicker">The Dawn</div>
     <div class="dt-main">is a <em>question</em>.</div>
     <div class="dt-main">The sword is the <span class="red">answer</span>.</div>
   </div>
 
-  <button class="jumper" id="jumper" aria-label="Awaken">
+  <!-- Luffy -->
+  <button class="jumper" id="jumper" type="button" aria-label="Awaken">
     <img src="assets/jumper-silhouette.png" alt="" decoding="async">
-    <span class="jumper-hint">click to awaken - kakusei</span>
+    <span class="jumper-hint">CLICK TO AWAKEN</span>
   </button>
 
-  <div class="scroll-hint" id="scroll-hint">scroll - tsuzuku</div>
+  <div class="scroll-hint" id="scroll-hint">SCROLL</div>
 
+  <!-- Mugen -->
   <div class="mugen" id="mugen">
     <div class="mugen-bubble">
       <div class="mb-who" id="mb-who">SENSEI MUGEN</div>
       <div class="mb-text" id="mb-text">...</div>
     </div>
     <div class="mugen-portrait">
-      <img src="assets/sensei-mugen.png" alt="Mugen" decoding="async">
+      <img src="assets/sensei-mugen.png" alt="Sensei Mugen" decoding="async">
       <span class="mp-name">MUGEN</span>
     </div>
   </div>
 
+  <!-- Meta -->
   <aside class="meta-widget" id="meta-widget">
     <div class="mw-row"><span class="mw-k">HOUR</span><span class="mw-v" id="mw-hour">Nightfall</span></div>
-    <div class="mw-row"><span class="mw-k">COORD</span><span class="mw-v">17N - 78E</span></div>
+    <div class="mw-row"><span class="mw-k">COORD</span><span class="mw-v">17N 78E</span></div>
     <div class="mw-row"><span class="mw-k">WIND</span><span class="mw-v" id="mw-wind">NE LOW</span></div>
   </aside>
 
-  <div class="ink-system" id="ink-system" aria-hidden="true">
+  <!-- INK SYSTEM -->
+  <div class="ink-system" id="ink-system">
     <canvas class="ink-atmos" id="ink-atmos"></canvas>
 
-    <div class="ink-wipe" id="ink-wipe">
-      <div class="iw-stroke iw-tl"></div>
-      <div class="iw-stroke iw-tr"></div>
-      <div class="iw-stroke iw-bl"></div>
-      <div class="iw-stroke iw-br"></div>
-    </div>
+    <!-- Floating ink silhouettes (using your real assets) -->
+    <img class="ink-deco ink-deco-branch" src="assets/ink-silhouette-branch.png" alt="" decoding="async">
+    <img class="ink-deco ink-deco-crow" src="assets/ink-silhouette-crow.png" alt="" decoding="async">
+    <img class="ink-deco ink-deco-wave" src="assets/ink-silhouette-wave.png" alt="" decoding="async">
 
-    <div class="ink-scroll" id="ink-scroll">
+    <div class="ink-scroll-inner">
       <div class="ink-header">
-        <div class="ih-stamp">KAKUSEI</div>
-        <h2 class="ih-kanji">&#35226;&#37266;</h2>
-        <p class="ih-en">THE HIDDEN TREASURES</p>
-        <p class="ih-sub">For those who heard the call. Scroll to wander.</p>
-        <div class="ih-arrow">&darr;</div>
+        <div class="ih-kanji">&#35226;&#37266;</div>
+        <div class="ih-en">AWAKENING</div>
+        <div class="ih-sub">For those who answer the call.<br>Scroll to unroll the hidden scroll.</div>
       </div>
 
-      <div class="ink-vault" id="ink-vault"></div>
+      <div class="vault-stack" id="vault-stack"></div>
 
-      <div class="ink-closing">
-        <div class="ic-mugen">
-          <img src="assets/sensei-mugen.png" alt="Mugen" decoding="async">
-          <p>"The world is not waiting. It is being <em>built</em>. Your hand. Your tools. Your hour."</p>
-        </div>
-        <div class="ic-sign">- sumanth.D</div>
-        <div class="ic-foot">click the wanderer to return</div>
+      <img class="ink-koi" src="assets/ink-silhouette-koi.png" alt="" decoding="async">
+
+      <div class="ink-footer">
+        end of scroll &middot; click the wanderer to return
       </div>
     </div>
   </div>

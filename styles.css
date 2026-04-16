@@ -1,7 +1,9 @@
 /* =================================================================
-   sumanth.D (c) - STYLES v6 FINAL
-   Fixes: hero monogram fits, jelly-glass title, sumi bleed,
-          smaller Mugen, proper spacing between beats, emaki vault
+   sumanth.D - STYLES v7 FINAL
+   - body locked while loading (no scroll, no flash)
+   - water-jelly liquid title with SVG displacement
+   - ink silhouettes wired in
+   - vault cards use ink-frame-texture as actual border
 ================================================================= */
 
 @font-face { font-family:'Inter Tight'; src:url('fonts/InterTight-Light.ttf') format('truetype'); font-weight:300; font-display:swap; }
@@ -39,7 +41,24 @@
   --jp:'Noto Serif JP',serif;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased;}
+html,body{
+  background:#000;
+  color:var(--grey);
+  font-family:var(--display);
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+
+/* CRITICAL: lock scroll while loading - prevents pre-load page flash */
+body.is-loading{
+  overflow:hidden !important;
+  height:100vh !important;
+  position:fixed !important;
+  width:100% !important;
+}
+body.is-loading .scroll-spacer{display:none;}
+
 ::selection{background:var(--beni);color:#fff;}
 
 .scroll-spacer{width:100%;height:1100vh;pointer-events:none;}
@@ -67,13 +86,12 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 #bg-hilltop { filter:brightness(.78) saturate(1.10); }
 #bg-dawn    { filter:brightness(1.0) saturate(1.15); }
 
-/* =============== LAYERS =============== */
 .layer{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;}
 .layer-stars{z-index:2;}
 .layer-three{z-index:3;}
 .layer-atmos{z-index:4;}
 
-/* =============== SUMI INK BLEED (replaces shatter) =============== */
+/* =============== SUMI INK BLEED =============== */
 .sumi-bleed{
   position:absolute;inset:0;z-index:32;pointer-events:none;
   opacity:0;transition:opacity .8s var(--ease);
@@ -191,7 +209,6 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .ch-item:hover{color:var(--aka);background:rgba(232,118,63,.08);padding-left:14px;}
 .scroll-pct{font-family:var(--mono);font-size:11px;color:var(--grey);opacity:.6;font-variant-numeric:tabular-nums;letter-spacing:.04em;}
 
-/* =============== STATS =============== */
 .stats{
   position:absolute;left:18px;top:50%;transform:translateY(-50%) rotate(-90deg);
   transform-origin:left center;z-index:55;
@@ -199,7 +216,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   opacity:.38;white-space:nowrap;pointer-events:none;display:flex;gap:20px;
 }
 
-/* =============== HERO MONOGRAM (FITS VIEWPORT) =============== */
+/* =============== HERO MONOGRAM =============== */
 .hero-monogram{
   position:absolute;inset:0;z-index:8;
   display:grid;place-items:center;pointer-events:none;
@@ -212,13 +229,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   white-space:nowrap;
 }
 .hero-monogram.-on{opacity:.96;transform:translateY(0) scale(1);}
-.hero-monogram .hm-m{
-  display:inline-block;
-  min-width:.8em;
-  text-align:center;
-  font-style:italic;
-  will-change:transform;
-}
+.hero-monogram .hm-m{display:inline-block;min-width:.8em;text-align:center;font-style:italic;will-change:transform;}
 .hero-monogram .hm-d{color:var(--beni);margin-left:.05em;}
 .hero-monogram .hm-c{font-size:.24em;color:var(--grey-dim);vertical-align:super;margin-left:.08em;opacity:.7;font-style:normal;}
 
@@ -235,206 +246,89 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .cap-bottom{bottom:7vh;left:50%;transform:translateX(-50%);color:var(--grey-dim);}
 .cap-folio{top:9vh;right:10vw;color:var(--grey-dim);}
 
-
-/* =============== BEAT TITLES (BLUR REVEAL + NO BG) =============== */
-.beat-title {
-  position: absolute;
-  z-index: 22;
-  pointer-events: none;
-  
-  /* Use CSS variables to hold base positions */
-  --tx: -50%;
-  --ty: -50%;
-  --ty-offset: 40px; /* The scroll reveal offset */
-  --scale: 0.95;
-  
-  /* Apply the variables to the transform */
-  transform: translate(var(--tx), calc(var(--ty) + var(--ty-offset))) scale(var(--scale));
-  
-  opacity: 0;
-  filter: blur(24px); 
-  transition: opacity 1.2s var(--ease), filter 1.2s var(--ease), transform 1.2s var(--ease);
-  
-  padding: 0;
-  color: #fff;
-  text-shadow: 0 4px 40px rgba(0,0,0,0.95), 0 2px 12px rgba(0,0,0,0.85), 0 0 4px rgba(0,0,0,1);
-  overflow: visible;
-}
-
-/* When active, just zero out the offset and scale, keeping the centering intact */
-.beat-title.-on {
-  opacity: 1;
-  filter: blur(0px);
-  --ty-offset: 0px; 
-  --scale: 1;
-}
-
-.beat-title em { font-style: normal; color: var(--aka); font-weight: 500; }
-.beat-title .accent { color: var(--aka); }
-.beat-title .quiet { opacity: .55; }
-
-/* Individual placements (Transform is removed here, handled by vars) */
-.bt-sacred {
-  top: 44%; left: 50%;
-  --tx: -50%; --ty: -50%;
-  font-weight: 200; font-size: clamp(26px,4.2vw,58px);
-  letter-spacing: -.02em; text-align: center; line-height: 1.12;
-  max-width: min(92%,960px); font-family: var(--display);
-}
-.bt-dialogue {
-  top: 20vh; left: 50%; 
-  --tx: -50%; --ty: 0px;
-  font-weight: 400; font-size: clamp(22px,3.5vw,46px); letter-spacing: -.015em;
-  text-align: center; max-width: min(90%,880px); line-height: 1.2;
-  font-family: var(--serif); font-style: italic;
-}
-.bt-ascent {
-  bottom: 20vh; left: 50%; 
-  --tx: -50%; --ty: 0px;
-  font-weight: 300; font-size: clamp(22px,3.8vw,50px); letter-spacing: -.02em;
-  text-align: center; max-width: min(90%,880px); line-height: 1.18;
-  font-family: var(--display);
-}
-.bt-self {
-  top: 50%; left: 50%; 
-  --tx: -50%; --ty: -50%;
-  font-family: var(--serif); font-style: italic; font-weight: 500;
-  font-size: clamp(28px,4.6vw,62px); letter-spacing: -.01em;
-  text-align: center; max-width: min(90%,820px); line-height: 1.12;
-  
-  color: var(--washi); 
-  background: transparent;
-  border: none;
-}
-.bt-self em { color: var(--beni); font-style: italic; font-weight: 600; }
-
-/* =============== SKILL HUB (3 stages) =============== */
-.skillhub{
-  position:absolute;inset:0;z-index:20;pointer-events:none;
-}
-.sh-intro, .sh-ledger, .sh-feature{
-  position:absolute;inset:0;display:flex;
-  opacity:0;transform:translateY(30px);
-  transition:opacity 1.1s var(--ease), transform 1.2s var(--ease);
-  pointer-events:none;
-}
-.sh-intro.-on, .sh-ledger.-on, .sh-feature.-on{opacity:1;transform:translateY(0);pointer-events:auto;}
-
-/* Stage 1: intro - centered */
-.sh-intro{
-  flex-direction:column;align-items:center;justify-content:center;
-  padding:8vh 6vw;text-align:center;gap:28px;
-}
-.sh-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.38em;color:var(--beni);text-transform:uppercase;}
-.sh-title{
-  font-family:var(--display);font-weight:200;
-  font-size:clamp(40px,6vw,90px);letter-spacing:-.035em;line-height:.98;
-  color:var(--grey-dark);
-}
-.sh-title em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--beni);}
-.sh-sub{
-  font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.6vw,20px);
-  line-height:1.5;color:var(--grey-dark);opacity:.85;max-width:58ch;
-}
-
-/* Stage 2: ledger */
-.sh-ledger{
-  flex-direction:column;padding:10vh 8vw;gap:4px;overflow:hidden;
-}
-.sh-row{
-  display:grid;grid-template-columns:60px 1fr 200px 80px;
-  gap:24px;align-items:baseline;padding:22px 16px;
-  border-top:1px solid rgba(58,52,45,.2);
-  position:relative;overflow:hidden;
-  opacity:0;transform:translateX(40px);
-  transition:opacity .6s var(--ease), transform .6s var(--ease), padding-left .4s var(--ease), background .3s var(--ease);
-}
-.sh-ledger.-on .sh-row{opacity:1;transform:translateX(0);}
-.sh-ledger.-on .sh-row:nth-child(1){transition-delay:.05s;}
-.sh-ledger.-on .sh-row:nth-child(2){transition-delay:.12s;}
-.sh-ledger.-on .sh-row:nth-child(3){transition-delay:.19s;}
-.sh-ledger.-on .sh-row:nth-child(4){transition-delay:.26s;}
-.sh-ledger.-on .sh-row:nth-child(5){transition-delay:.33s;}
-.sh-ledger.-on .sh-row:nth-child(6){transition-delay:.40s;}
-.sh-ledger.-on .sh-row:nth-child(7){transition-delay:.47s;}
-.sh-row:last-child{border-bottom:1px solid rgba(58,52,45,.2);}
-.sh-row:hover{padding-left:36px;background:rgba(200,60,40,.05);}
-.sh-row::before{
-  content:'';position:absolute;left:0;top:50%;width:0;height:1px;
-  background:var(--beni);transition:width .4s var(--ease);
-}
-.sh-row:hover::before{width:24px;}
-.sh-num{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--beni);font-variant-numeric:tabular-nums;opacity:.8;}
-.sh-title-row{font-family:var(--display);font-weight:500;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.02em;line-height:1.05;color:var(--grey-dark);}
-.sh-role{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey-dark);opacity:.65;}
-.sh-year{font-family:var(--mono);font-size:11px;color:var(--grey-dark);text-align:right;opacity:.65;font-variant-numeric:tabular-nums;}
-
-/* Stage 3: Feature (Fudō Myōō) */
-.sh-feature{
-  flex-direction:column;justify-content:center;padding:12vh 8vw;gap:20px;max-width:900px;
-}
-.shf-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.38em;color:var(--beni);text-transform:uppercase;}
-.shf-title{
-  font-family:var(--display);font-weight:200;
-  font-size:clamp(56px,9vw,132px);letter-spacing:-.04em;line-height:.9;
-  color:var(--grey-dark);
-}
-.shf-title em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--beni);}
-.shf-role{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--grey-dark);opacity:.7;text-transform:uppercase;}
-.shf-desc{
-  font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.7vw,22px);
-  line-height:1.55;color:var(--grey-dark);opacity:.9;max-width:60ch;
-}
-.shf-meta{
-  display:flex;gap:60px;margin-top:12px;flex-wrap:wrap;
-  padding-top:20px;border-top:1px solid rgba(58,52,45,.2);
-}
-.shf-meta > div{display:flex;flex-direction:column;gap:6px;}
-.shf-meta span{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--grey-dark);opacity:.6;text-transform:uppercase;}
-.shf-meta strong{font-family:var(--display);font-weight:500;font-size:clamp(18px,2vw,26px);color:var(--grey-dark);}
-
-/* =============== DAWN =============== */
-.dawn-title{
-  position:absolute;left:6vw;bottom:14vh;z-index:24;
-  font-family:var(--serif);color:#fff;
-  opacity:0;transform:translateY(30px);
-  transition:opacity 1.4s var(--ease), transform 1.6s var(--ease);
-  pointer-events:none;max-width:44vw;
-  text-shadow:0 4px 30px rgba(0,0,0,.85);
-}
-.dawn-title.-on{opacity:1;transform:translateY(0);}
-.dt-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.38em;text-transform:uppercase;color:var(--yuuhi);margin-bottom:22px;opacity:.85;}
-.dt-main{font-style:italic;font-weight:500;font-size:clamp(30px,4.5vw,64px);line-height:1.1;letter-spacing:-.02em;color:#fff;}
-.dt-main em{font-style:italic;color:var(--aka);}
-.dt-main .red{color:var(--beni);font-style:normal;font-family:var(--display);font-weight:300;}
-
-/* =============== JUMPER =============== */
-.jumper{
-  --sun-x:50%;--sun-y:48%;
-  position:absolute;left:var(--sun-x);top:var(--sun-y);
-  width:clamp(80px,10vw,160px);aspect-ratio:1/1;
-  z-index:25;padding:0;background:transparent;border:none;
-  transform:translate(-50%,-50%) translateY(80px) scale(.45) rotate(-12deg);
+/* =============== BEAT TITLES - LIQUID JELLY GLASS =============== */
+.beat-title{
+  position:absolute;z-index:22;pointer-events:auto;
   opacity:0;
-  transition:opacity 1.2s var(--ease), transform 1.8s var(--bounce);
-  filter:drop-shadow(0 16px 32px rgba(0,0,0,.7));
-}
-.jumper.-on{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0deg);}
-.jumper:hover{transform:translate(-50%,-50%) scale(1.08) rotate(2deg);}
-.jumper img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
-.jumper:hover .jumper-hint{opacity:1;transform:translate(-50%,8px);}
-.jumper-hint{
-  position:absolute;top:100%;left:50%;transform:translate(-50%,16px);
-  margin-top:6px;padding:8px 14px;border-radius:30px;
-  background:rgba(14,12,8,.85);backdrop-filter:blur(12px);
+  transition:opacity 1.1s var(--ease);
+  padding:28px 44px;
+  border-radius:20px;
+  background:rgba(14,12,8,.34);
+  backdrop-filter:blur(14px) saturate(160%) brightness(.72);
+  -webkit-backdrop-filter:blur(14px) saturate(160%) brightness(.72);
   border:1px solid rgba(245,237,224,.12);
-  font-family:var(--mono);font-size:10px;letter-spacing:.25em;text-transform:uppercase;
-  color:var(--yuuhi);white-space:nowrap;
-  opacity:0;transition:opacity .35s var(--ease), transform .35s var(--ease);
-  pointer-events:none;
+  box-shadow:
+    0 20px 60px -10px rgba(0,0,0,.6),
+    inset 0 1px 0 rgba(255,255,255,.1),
+    inset 0 -1px 0 rgba(0,0,0,.2);
+  color:#fff;
+  /* SVG filter applied dynamically on hover via JS */
+  transition:opacity 1.1s var(--ease), filter .3s var(--ease);
+  overflow:visible;
 }
+.beat-title.-on{opacity:1;}
+.beat-title.-jelly{
+  filter:url(#liquid-jelly);
+}
+.beat-title > .bt-inner{
+  transform:translateY(36px);
+  transition:transform 1.2s var(--ease);
+  position:relative;z-index:2;
+}
+.beat-title.-on > .bt-inner{transform:translateY(0);}
 
-/* =============== SCROLL HINT =============== */
+/* The "water surface" highlight that follows cursor */
+.beat-title::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:20px;
+  background:radial-gradient(circle 200px at var(--mx, 50%) var(--my, 50%),
+    rgba(245,237,224,.18) 0%,
+    rgba(245,237,224,.06) 35%,
+    transparent 70%);
+  opacity:0;
+  transition:opacity .4s var(--ease);
+  pointer-events:none;
+  z-index:1;
+}
+.beat-title:hover::before{opacity:1;}
+
+.beat-title em{font-style:normal;color:var(--aka);font-weight:500;}
+.beat-title .accent{color:var(--aka);}
+.beat-title .quiet{opacity:.55;}
+
+.bt-sacred{
+  top:44%;left:50%;transform:translate(-50%,-50%);
+  font-weight:200;font-size:clamp(26px,4.2vw,58px);
+  letter-spacing:-.02em;text-align:center;line-height:1.12;
+  max-width:min(92%,960px);font-family:var(--display);
+}
+.bt-dialogue{
+  top:20vh;left:50%;transform:translate(-50%,0);
+  font-weight:400;font-size:clamp(22px,3.5vw,46px);letter-spacing:-.015em;
+  text-align:center;max-width:min(90%,880px);line-height:1.2;
+  font-family:var(--serif);font-style:italic;
+}
+.bt-ascent{
+  bottom:20vh;left:50%;transform:translate(-50%,0);
+  font-weight:300;font-size:clamp(22px,3.8vw,50px);letter-spacing:-.02em;
+  text-align:center;max-width:min(90%,880px);line-height:1.18;
+  font-family:var(--display);
+}
+.bt-self{
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  font-family:var(--serif);font-style:italic;font-weight:500;
+  font-size:clamp(28px,4.6vw,62px);letter-spacing:-.01em;
+  text-align:center;max-width:min(90%,820px);line-height:1.12;
+  color:var(--grey-dark);
+  background:rgba(245,237,224,.7);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  border-color:rgba(58,52,45,.2);
+}
+.bt-self em{color:var(--beni);font-style:italic;font-weight:600;}
+
 .scroll-hint{
   position:absolute;bottom:30px;left:50%;transform:translateX(-50%);z-index:35;
   pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:8px;
@@ -449,7 +343,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 }
 @keyframes sh{0%,100%{transform:scaleY(.3);opacity:.35}50%{transform:scaleY(1);opacity:1}}
 
-/* =============== MUGEN (SMALLER) =============== */
+/* =============== MUGEN =============== */
 .mugen{
   position:absolute;bottom:24px;right:24px;z-index:50;
   display:flex;align-items:flex-end;gap:12px;
@@ -495,7 +389,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   text-transform:uppercase;color:var(--grey-dim);white-space:nowrap;opacity:.8;
 }
 
-/* =============== META WIDGET =============== */
+/* =============== META =============== */
 .meta-widget{
   position:absolute;right:24px;top:50%;transform:translateY(-50%) translateX(12px);
   z-index:28;padding:14px 16px;border-radius:12px;
@@ -513,10 +407,8 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .mw-k{font-size:8px;letter-spacing:.22em;color:var(--grey-dim);}
 .mw-v{font-family:var(--display);font-size:11px;color:var(--grey);text-align:right;}
 
-/* =============== SKILL HUB (3 stages) =============== */
-.skillhub{
-  position:absolute;inset:0;z-index:20;pointer-events:none;
-}
+/* =============== SKILL HUB =============== */
+.skillhub{position:absolute;inset:0;z-index:20;pointer-events:none;}
 .sh-intro, .sh-ledger, .sh-feature{
   position:absolute;inset:0;display:flex;
   opacity:0;transform:translateY(30px);
@@ -524,12 +416,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   pointer-events:none;
 }
 .sh-intro.-on, .sh-ledger.-on, .sh-feature.-on{opacity:1;transform:translateY(0);pointer-events:auto;}
-
-/* Stage 1: intro - centered */
-.sh-intro{
-  flex-direction:column;align-items:center;justify-content:center;
-  padding:8vh 6vw;text-align:center;gap:28px;
-}
+.sh-intro{flex-direction:column;align-items:center;justify-content:center;padding:8vh 6vw;text-align:center;gap:28px;}
 .sh-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.38em;color:var(--beni);text-transform:uppercase;}
 .sh-title{
   font-family:var(--display);font-weight:200;
@@ -537,21 +424,13 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   color:var(--grey-dark);
 }
 .sh-title em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--beni);}
-.sh-sub{
-  font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.6vw,20px);
-  line-height:1.5;color:var(--grey-dark);opacity:.85;max-width:58ch;
-}
-
-/* Stage 2: ledger */
-.sh-ledger{
-  flex-direction:column;padding:10vh 8vw;gap:4px;overflow:hidden;
-}
+.sh-sub{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.6vw,20px);line-height:1.5;color:var(--grey-dark);opacity:.85;max-width:58ch;}
+.sh-ledger{flex-direction:column;padding:10vh 8vw;gap:4px;overflow:hidden;}
 .sh-row{
   display:grid;grid-template-columns:60px 1fr 200px 80px;
   gap:24px;align-items:baseline;padding:22px 16px;
   border-top:1px solid rgba(58,52,45,.2);
   position:relative;overflow:hidden;
-  transition:padding-left .4s var(--ease), background .3s var(--ease);
   opacity:0;transform:translateX(40px);
   transition:opacity .6s var(--ease), transform .6s var(--ease), padding-left .4s var(--ease), background .3s var(--ease);
 }
@@ -565,20 +444,13 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .sh-ledger.-on .sh-row:nth-child(7){transition-delay:.47s;}
 .sh-row:last-child{border-bottom:1px solid rgba(58,52,45,.2);}
 .sh-row:hover{padding-left:36px;background:rgba(200,60,40,.05);}
-.sh-row::before{
-  content:'';position:absolute;left:0;top:50%;width:0;height:1px;
-  background:var(--beni);transition:width .4s var(--ease);
-}
+.sh-row::before{content:'';position:absolute;left:0;top:50%;width:0;height:1px;background:var(--beni);transition:width .4s var(--ease);}
 .sh-row:hover::before{width:24px;}
 .sh-num{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--beni);font-variant-numeric:tabular-nums;opacity:.8;}
 .sh-title-row{font-family:var(--display);font-weight:500;font-size:clamp(22px,2.6vw,34px);letter-spacing:-.02em;line-height:1.05;color:var(--grey-dark);}
 .sh-role{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--grey-dark);opacity:.65;}
 .sh-year{font-family:var(--mono);font-size:11px;color:var(--grey-dark);text-align:right;opacity:.65;font-variant-numeric:tabular-nums;}
-
-/* Stage 3: Feature (Fudō Myōō) */
-.sh-feature{
-  flex-direction:column;justify-content:center;padding:12vh 8vw;gap:20px;max-width:900px;
-}
+.sh-feature{flex-direction:column;justify-content:center;padding:12vh 8vw;gap:20px;max-width:900px;}
 .shf-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.38em;color:var(--beni);text-transform:uppercase;}
 .shf-title{
   font-family:var(--display);font-weight:200;
@@ -587,14 +459,8 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 }
 .shf-title em{font-family:var(--serif);font-style:italic;font-weight:500;color:var(--beni);}
 .shf-role{font-family:var(--mono);font-size:12px;letter-spacing:.28em;color:var(--grey-dark);opacity:.7;text-transform:uppercase;}
-.shf-desc{
-  font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.7vw,22px);
-  line-height:1.55;color:var(--grey-dark);opacity:.9;max-width:60ch;
-}
-.shf-meta{
-  display:flex;gap:60px;margin-top:12px;flex-wrap:wrap;
-  padding-top:20px;border-top:1px solid rgba(58,52,45,.2);
-}
+.shf-desc{font-family:var(--serif);font-style:italic;font-size:clamp(16px,1.7vw,22px);line-height:1.55;color:var(--grey-dark);opacity:.9;max-width:60ch;}
+.shf-meta{display:flex;gap:60px;margin-top:12px;flex-wrap:wrap;padding-top:20px;border-top:1px solid rgba(58,52,45,.2);}
 .shf-meta > div{display:flex;flex-direction:column;gap:6px;}
 .shf-meta span{font-family:var(--mono);font-size:9px;letter-spacing:.24em;color:var(--grey-dark);opacity:.6;text-transform:uppercase;}
 .shf-meta strong{font-family:var(--display);font-weight:500;font-size:clamp(18px,2vw,26px);color:var(--grey-dark);}
@@ -614,11 +480,14 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .dt-main em{font-style:italic;color:var(--aka);}
 .dt-main .red{color:var(--beni);font-style:normal;font-family:var(--display);font-weight:300;}
 
-/* =============== JUMPER =============== */
+/* =============== JUMPER (sun-locked) =============== */
 .jumper{
-  --sun-x:50%;--sun-y:48%;
-  position:absolute;left:var(--sun-x);top:var(--sun-y);
-  width:clamp(80px,10vw,160px);aspect-ratio:1/1;
+  --sun-x:50%;--sun-y:50%;
+  position:absolute;
+  left:var(--sun-x);
+  top:var(--sun-y);
+  width:clamp(80px,10vw,160px);
+  aspect-ratio:1/1;
   z-index:25;padding:0;background:transparent;border:none;
   transform:translate(-50%,-50%) translateY(80px) scale(.45) rotate(-12deg);
   opacity:0;
@@ -640,7 +509,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   pointer-events:none;
 }
 
-/* =============== INK SYSTEM (EMAKI VAULT) =============== */
+/* =============== INK SYSTEM =============== */
 .ink-system{
   position:absolute;inset:0;z-index:200;pointer-events:none;
   opacity:0;transition:opacity 1.6s var(--ease);
@@ -649,6 +518,39 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .ink-system.-on{opacity:1;pointer-events:auto;}
 .ink-atmos{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;}
 .ink-scroll-inner{position:relative;z-index:2;}
+
+/* Floating ink silhouettes */
+.ink-deco{
+  position:fixed;
+  pointer-events:none;
+  opacity:0;
+  z-index:3;
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.15));
+  transition:opacity 2s var(--ease) 1s;
+}
+.ink-system.-on .ink-deco{opacity:.85;}
+.ink-deco-branch{
+  top:6vh;right:-3vw;width:42vw;max-width:540px;
+  transform:rotate(8deg);
+}
+.ink-deco-crow{
+  top:38vh;left:-4vw;width:36vw;max-width:480px;
+  transform:rotate(-4deg) scaleX(-1);
+  opacity:0;
+}
+.ink-system.-on .ink-deco-crow{opacity:.65;}
+.ink-deco-wave{
+  bottom:0;right:-2vw;width:46vw;max-width:620px;
+  opacity:0;
+}
+.ink-system.-on .ink-deco-wave{opacity:.55;}
+
+.ink-koi{
+  display:block;margin:8vh auto 0;width:clamp(200px,28vw,420px);
+  opacity:0;transition:opacity 1.6s var(--ease) 1.5s;
+  filter:drop-shadow(0 6px 16px rgba(0,0,0,.18));
+}
+.ink-system.-on .ink-koi{opacity:.85;}
 
 .ink-header{
   min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
@@ -665,24 +567,22 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .ih-en{font-family:var(--mono);font-size:12px;letter-spacing:.6em;color:#3a342d;margin-top:-6px;}
 .ih-sub{font-family:var(--serif);font-style:italic;font-size:clamp(14px,1.5vw,18px);color:#3a342d;opacity:.7;margin-top:18px;line-height:1.6;}
 
-.vault-stack{display:flex;flex-direction:column;align-items:center;padding:0 6vw 10vh;gap:8vh;}
+.vault-stack{display:flex;flex-direction:column;align-items:center;padding:0 6vw 4vh;gap:8vh;}
 
 .vault-card{
   width:100%;max-width:1100px;
-  padding:8vh 6vw;
+  padding:9vh 7vw;
   position:relative;
   display:grid;grid-template-columns:1fr 1.2fr;gap:6vw;
   align-items:center;
-  background:rgba(245,237,224,.5);
-  border:1px solid rgba(10,9,6,.15);
+  background:rgba(245,237,224,.6);
   backdrop-filter:blur(6px);
   -webkit-backdrop-filter:blur(6px);
-  border-radius:4px;
-  /* hand-drawn ink frame feel via box-shadow */
-  box-shadow:
-    0 0 0 8px rgba(245,237,224,.4),
-    0 0 0 9px rgba(10,9,6,.3),
-    0 30px 70px -20px rgba(0,0,0,.25);
+  /* Use ink-frame-texture as actual border */
+  border-image:url('assets/ink-frame-texture.png') 60 stretch;
+  border-style:solid;
+  border-width:30px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.25);
 }
 .vault-card:nth-child(even){grid-template-columns:1.2fr 1fr;direction:rtl;}
 .vault-card:nth-child(even) > *{direction:ltr;}
@@ -712,7 +612,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   color:#0a0906;opacity:.55;text-transform:uppercase;
 }
 
-/* When ink mode on, hide regular elements */
+/* INK MODE active state */
 .stage.-ink .bg-scene,
 .stage.-ink .layer-stars,
 .stage.-ink .layer-three,
@@ -741,9 +641,8 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   background:linear-gradient(180deg,#f0e7d4 0%,#e8dcc4 60%,#d8cab0 100%);
   background-image:url('assets/texture-paper.jpg');
   background-blend-mode:multiply;background-size:cover;
-  opacity:0;transition:opacity 1.2s var(--ease);
+  opacity:.96;transition:opacity 1.2s var(--ease);
 }
-.stage.-ink::before{opacity:.96;}
 .stage.-ink .jumper{
   filter:invert(1) drop-shadow(0 0 30px rgba(255,255,255,.3));
   z-index:300;
@@ -787,6 +686,7 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   padding:10px 22px;border-radius:24px;
   font-family:var(--mono);font-size:10px;letter-spacing:.3em;color:var(--grey-dim);
   opacity:0;transition:opacity .6s var(--ease);
+  cursor:pointer;
 }
 .loader-skip.-show{opacity:.7;}
 .loader-skip:hover{opacity:1;border-color:var(--aka);color:var(--aka);}
@@ -803,7 +703,6 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
 .cursor.-hover{width:44px;height:44px;border-color:var(--beni);}
 .cursor.-hover .cursor-dot{background:var(--beni);width:4px;height:4px;margin:-2px 0 0 -2px;}
 
-/* =============== RESPONSIVE =============== */
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;}}
 @media (max-width:900px){
   .skillhub{padding:6vh 6vw;}
@@ -813,7 +712,8 @@ html,body{background:#000;color:var(--grey);font-family:var(--display);overflow-
   .mugen-portrait{width:56px;}
   .meta-widget{display:none;}
   .cap-chapter{display:none;}
-  .vault-card{grid-template-columns:1fr;gap:30px;padding:5vh 5vw;}
+  .vault-card{grid-template-columns:1fr;gap:30px;padding:5vh 5vw;border-width:20px;}
   .vault-card:nth-child(even){grid-template-columns:1fr;direction:ltr;}
   .shf-meta{gap:28px;}
+  .ink-deco{display:none;}
 }
